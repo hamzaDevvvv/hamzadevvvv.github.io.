@@ -1,1330 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H9 // Offensive Research Lab - Interactive</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #0a0a0a;
-            --panel-bg: #121212;
-            --text-main: #dcdcdc;
-            --accent: #ffffff;
-            --dim-text: #666;
-            --border: #333;
-            --terminal-glow: rgba(0, 255, 0, 0.05);
-            --primary: #00ff00;
-            --secondary: #0088ff;
-            --danger: #ff0055;
-            --warning: #ffaa00;
-            --purple: #aa00ff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Courier New', 'Consolas', monospace;
-            min-height: 100vh;
-            overflow-x: hidden;
-            cursor: none;
-            position: relative;
-        }
-
-        /* Custom Cursor */
-        .cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            mix-blend-mode: difference;
-            transition: transform 0.2s, width 0.3s, height 0.3s;
-        }
-
-        .cursor-follower {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background-color: var(--primary);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9998;
-            transition: transform 0.5s;
-        }
-
-        /* Background Grid */
-        .grid-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
-            opacity: 0.5;
-        }
-
-        /* Animated Background Elements */
-        .floating-shapes {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -2;
-            overflow: hidden;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.05;
-            filter: blur(40px);
-        }
-
-        .shape-1 {
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            top: 10%;
-            left: 10%;
-            animation: float 25s infinite linear;
-        }
-
-        .shape-2 {
-            width: 200px;
-            height: 200px;
-            background: var(--secondary);
-            top: 60%;
-            right: 15%;
-            animation: float 20s infinite linear reverse;
-        }
-
-        .shape-3 {
-            width: 150px;
-            height: 150px;
-            background: var(--danger);
-            bottom: 20%;
-            left: 20%;
-            animation: float 15s infinite linear;
-        }
-
-        /* Scanlines Effect */
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 20, 0, 0.03) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0.3;
-        }
-
-        /* Main Container */
-        .os-container {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Header with Interactive Elements */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-            position: relative;
-            flex-wrap: wrap;
-        }
-
-        .header-glow {
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                var(--primary), 
-                var(--secondary), 
-                var(--primary), 
-                transparent);
-            filter: blur(2px);
-        }
-
-        .header-left h1 {
-            font-size: 3rem;
-            color: transparent;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            margin-bottom: 10px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .header-left h1::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), transparent);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.5s;
-        }
-
-        .header-left h1:hover::after {
-            transform: scaleX(1);
-        }
-
-        .tag-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .tag {
-            background: rgba(0, 255, 0, 0.1);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tag::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .tag:hover::before {
-            left: 100%;
-        }
-
-        .tag:hover {
-            background: rgba(0, 255, 0, 0.2);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
-        }
-
-        .header-right {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(0, 255, 0, 0.2);
-            min-width: 250px;
-            backdrop-filter: blur(10px);
-            transform-style: preserve-3d;
-            transition: transform 0.3s;
-        }
-
-        .header-right:hover {
-            transform: translateY(-5px) rotateX(5deg);
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .pulsing-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            animation: pulse 2s infinite;
-        }
-
-        /* Interactive Dashboard */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .dashboard-item {
-            background: rgba(18, 18, 18, 0.8);
-            border: 1px solid rgba(0, 255, 0, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dashboard-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary));
-            transform: scaleY(0);
-            transform-origin: top;
-            transition: transform 0.5s;
-        }
-
-        .dashboard-item:hover::before {
-            transform: scaleY(1);
-        }
-
-        .dashboard-item:hover {
-            transform: translateY(-10px);
-            border-color: rgba(0, 255, 0, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.1);
-        }
-
-        .item-1 { grid-column: span 3; }
-        .item-2 { grid-column: span 3; }
-        .item-3 { grid-column: span 3; }
-        .item-4 { grid-column: span 3; }
-        .item-5 { grid-column: span 6; }
-        .item-6 { grid-column: span 6; }
-
-        .item-title {
-            font-size: 0.9rem;
-            color: var(--dim-text);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-icon {
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-        /* Animated Data Visualization */
-        .data-visual {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .data-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .data-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
-        }
-
-        .data-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        .data-bar-container {
-            width: 60%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .data-bar {
-            height: 100%;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .data-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        /* Circular Progress */
-        .circular-progress {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .progress-ring {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring-circle {
-            fill: none;
-            stroke-width: 8;
-            stroke-linecap: round;
-            stroke-dasharray: 283;
-            stroke-dashoffset: 283;
-            transition: stroke-dashoffset 1s;
-        }
-
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        /* Interactive Terminal */
-        .terminal-container {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 40px;
-            box-shadow: 
-                0 10px 40px rgba(0, 255, 0, 0.1),
-                inset 0 0 30px rgba(0, 255, 0, 0.05);
-            position: relative;
-        }
-
-        .terminal-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, 
-                transparent 30%, 
-                rgba(0, 255, 0, 0.02) 50%, 
-                transparent 70%);
-            pointer-events: none;
-        }
-
-        .terminal-header {
-            background: linear-gradient(90deg, #0a0a0a, #1a1a1a);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-        }
-
-        .terminal-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-        }
-
-        .terminal-status {
-            padding: 3px 8px;
-            background: rgba(0, 255, 0, 0.1);
-            border-radius: 4px;
-            color: var(--primary);
-            font-size: 0.7rem;
-            animation: pulse 2s infinite;
-        }
-
-        .terminal-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .control-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .control-btn:hover {
-            transform: scale(1.2);
-        }
-
-        .close-btn { background: #ff5f56; }
-        .min-btn { background: #ffbd2e; }
-        .max-btn { background: #27ca3f; }
-
-        .terminal-body {
-            padding: 20px;
-            height: 300px;
-            overflow-y: auto;
-            font-family: 'Consolas', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .terminal-line {
-            margin-bottom: 5px;
-        }
-
-        .terminal-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .prompt {
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .cmd-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--primary);
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 18px;
-            background: var(--primary);
-            animation: blink 1s infinite;
-            margin-left: 2px;
-        }
-
-        /* Interactive Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin: 40px 0;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            flex: 1;
-            min-width: 150px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(0, 255, 0, 0.2);
-            border-radius: 10px;
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            text-align: center;
-        }
-
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .action-btn:hover::before {
-            left: 100%;
-        }
-
-        .action-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 255, 0, 0.2);
-        }
-
-        .btn-icon {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .btn-traffic { border-color: var(--secondary); color: var(--secondary); }
-        .btn-ddos { border-color: var(--danger); color: var(--danger); }
-        .btn-tools { border-color: var(--warning); color: var(--warning); }
-        .btn-insta { border-color: #e1306c; color: #e1306c; }
-
-        /* Floating Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--primary);
-            border-radius: 50%;
-            opacity: 0;
-        }
-
-        /* Hover Effects */
-        .hover-glow {
-            transition: all 0.3s;
-        }
-
-        .hover-glow:hover {
-            text-shadow: 0 0 10px currentColor;
-        }
-
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(20px, -20px) rotate(90deg); }
-            50% { transform: translate(0, -40px) rotate(180deg); }
-            75% { transform: translate(-20px, -20px) rotate(270deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsive */
-        @media (max-width: 1100px) {
-            .dashboard-item {
-                grid-column: span 6 !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-item {
-                grid-column: span 12 !important;
-            }
-            
-            header {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .header-right {
-                width: 100%;
-            }
-            
-            .action-btn {
-                min-width: 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>h9exe | Cybersecurity Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Inter&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #050b12;
+  color: #e6f1ff;
+  font-family: "Inter", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.background-grid {
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(#0f1a24 1px, transparent 1px),
+                    linear-gradient(90deg, #0f1a24 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.25;
+  z-index: -1;
+}
+
+header {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.logo {
+  font-family: "Orbitron", sans-serif;
+  font-size: 3.5rem;
+  color: #00fff7;
+  letter-spacing: 4px;
+  text-shadow: 0 0 15px #00fff7;
+}
+
+.tagline {
+  color: #7bdff2;
+  margin-top: 0.6rem;
+}
+
+.bio {
+  max-width: 750px;
+  margin: auto;
+  text-align: center;
+  padding: 1rem 2rem 2.5rem;
+  color: #bcdfff;
+  line-height: 1.6;
+}
+
+.dashboard {
+  max-width: 1000px;
+  margin: auto;
+  padding: 2rem;
+}
+
+.dashboard h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #00fff7;
+  font-family: "Orbitron", sans-serif;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: #0c1724;
+  border: 1px solid #0ff;
+  border-radius: 10px;
+  padding: 1.8rem;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,255,255,0.15);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 30px rgba(0,255,255,0.35);
+}
+
+.card h3 {
+  color: #7bdff2;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  font-size: 2rem;
+  color: #00fff7;
+  font-family: "Orbitron", sans-serif;
+}
+
+.terminal {
+  background: #02060b;
+  border: 1px solid #0ff;
+  margin-top: 2rem;
+  padding: 1rem;
+  height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  color: #00ff9c;
+  box-shadow: inset 0 0 20px rgba(0,255,255,0.2);
+}
+
+.terminal span {
+  display: block;
+  margin-bottom: 4px;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.85rem;
+  color: #7bdff2;
+}
+</style>
 </head>
+
 <body>
-    <!-- Custom Cursors -->
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
-    
-    <!-- Background Elements -->
-    <div class="grid-bg"></div>
-    <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-    </div>
-    <div class="scanlines"></div>
-    <div class="particles" id="particles-container"></div>
-    
-    <!-- Main Content -->
-    <div class="os-container">
-        <header>
-            <div class="header-left">
-                <div class="status-indicator">
-                    <div class="pulsing-dot"></div>
-                    <span class="hover-glow">[ SYSTEM_ACTIVE // CONNECTION_SECURE ]</span>
-                </div>
-                <h1 class="hover-glow">H9:// OFFENSIVE_RESEARCH</h1>
-                <div class="tag-container">
-                    <div class="tag">PENETRATION_TESTING</div>
-                    <div class="tag">CRYPTOGRAPHY</div>
-                    <div class="tag">NETWORK_SECURITY</div>
-                    <div class="tag">BRUTE_FORCE</div>
-                    <div class="tag">REVERSE_ENGINEERING</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="data-row">
-                    <span class="data-label">DATE:</span>
-                    <span id="date-display" class="hover-glow">JAN_25_2026</span>
-                </div>
-                <div class="data-row">
-                    <span class="data-label">TIME:</span>
-                    <span id="time-display" class="hover-glow">00:00:00</span>
-                </div>
-                <div class="data-row">
-                    <span class="data-label">UPTIME:</span>
-                    <span id="uptime-display" class="hover-glow">00:00:00</span>
-                </div>
-                <div class="data-row">
-                    <span class="data-label">SESSION:</span>
-                    <span class="secure-tag hover-glow">H9EXE_ACTIVE</span>
-                </div>
-            </div>
-            <div class="header-glow"></div>
-        </header>
+<div class="background-grid"></div>
 
-        <!-- Interactive Dashboard -->
-        <div class="dashboard-grid">
-            <div class="dashboard-item item-1">
-                <div class="item-title">
-                    <span>NETWORK TRAFFIC</span>
-                    <i class="fas fa-network-wired item-icon"></i>
-                </div>
-                <div class="data-visual">
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--primary);"></div>
-                            <span>INBOUND</span>
-                        </div>
-                        <div class="data-bar-container">
-                            <div class="data-bar" id="inbound-bar" style="background: var(--primary); width: 65%;"></div>
-                        </div>
-                        <span>65%</span>
-                    </div>
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--secondary);"></div>
-                            <span>OUTBOUND</span>
-                        </div>
-                        <div class="data-bar-container">
-                            <div class="data-bar" id="outbound-bar" style="background: var(--secondary); width: 42%;"></div>
-                        </div>
-                        <span>42%</span>
-                    </div>
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--danger);"></div>
-                            <span>BLOCKED</span>
-                        </div>
-                        <div class="data-bar-container">
-                            <div class="data-bar" id="blocked-bar" style="background: var(--danger); width: 23%;"></div>
-                        </div>
-                        <span>23%</span>
-                    </div>
-                </div>
-            </div>
+<header>
+  <h1 class="logo">h9exe</h1>
+  <p class="tagline">Ethical Cybersecurity & Penetration Testing Enthusiast</p>
+</header>
 
-            <div class="dashboard-item item-2">
-                <div class="item-title">
-                    <span>SYSTEM LOAD</span>
-                    <i class="fas fa-microchip item-icon"></i>
-                </div>
-                <div class="circular-progress">
-                    <svg class="progress-ring" viewBox="0 0 100 100">
-                        <circle class="progress-ring-circle" cx="50" cy="50" r="45" 
-                                stroke="url(#gradient1)" stroke-width="8"
-                                style="stroke-dashoffset: 113.2;"></circle>
-                        <defs>
-                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="var(--primary)" />
-                                <stop offset="100%" stop-color="var(--secondary)" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <div class="progress-text" id="cpu-load">78%</div>
-                </div>
-            </div>
+<section class="bio">
+  <p>
+    I’m <strong>h9exe</strong>, a cybersecurity enthusiast focused on understanding how
+    attacks like brute forcing, credential abuse, and exploitation work —
+    so systems can be protected against them. Everything here is
+    simulated, legal, and for educational defense purposes only.
+  </p>
+</section>
 
-            <div class="dashboard-item item-3">
-                <div class="item-title">
-                    <span>ENCRYPTION STATUS</span>
-                    <i class="fas fa-lock item-icon"></i>
-                </div>
-                <div class="data-visual">
-                    <div class="data-row">
-                        <span>AES-256:</span>
-                        <span class="hover-glow" style="color: var(--primary);">ACTIVE</span>
-                    </div>
-                    <div class="data-row">
-                        <span>RSA-4096:</span>
-                        <span class="hover-glow" style="color: var(--primary);">ACTIVE</span>
-                    </div>
-                    <div class="data-row">
-                        <span>QUANTUM:</span>
-                        <span class="hover-glow" style="color: var(--warning);">PENDING</span>
-                    </div>
-                    <div class="data-row">
-                        <span>KEY ROTATION:</span>
-                        <span id="key-rotation" class="hover-glow">12:34:15</span>
-                    </div>
-                </div>
-            </div>
+<section class="dashboard">
+  <h2>Live Security Activity</h2>
 
-            <div class="dashboard-item item-4">
-                <div class="item-title">
-                    <span>TARGET STATUS</span>
-                    <i class="fas fa-crosshairs item-icon"></i>
-                </div>
-                <div class="data-visual">
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--primary);"></div>
-                            <span>ACTIVE</span>
-                        </div>
-                        <span>3</span>
-                    </div>
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--warning);"></div>
-                            <span>PENDING</span>
-                        </div>
-                        <span>5</span>
-                    </div>
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--danger);"></div>
-                            <span>BLOCKED</span>
-                        </div>
-                        <span>2</span>
-                    </div>
-                    <div class="data-row">
-                        <div class="data-label">
-                            <div class="data-color" style="background: var(--secondary);"></div>
-                            <span>COMPROMISED</span>
-                        </div>
-                        <span>7</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-item item-5">
-                <div class="item-title">
-                    <span>LIVE ACTIVITY</span>
-                    <i class="fas fa-stream item-icon"></i>
-                </div>
-                <div class="activity-feed" id="activity-feed">
-                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:34:45]</span> Port scan initiated on 192.168.1.0/24</div>
-                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:35:12]</span> Vulnerability detected: CVE-2024-1234</div>
-                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:36:03]</span> Brute force attack in progress (65%)</div>
-                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:37:22]</span> Firewall bypass successful</div>
-                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:38:45]</span> Data exfiltration started</div>
-                </div>
-            </div>
-
-            <div class="dashboard-item item-6">
-                <div class="item-title">
-                    <span>THREAT MAP</span>
-                    <i class="fas fa-globe-americas item-icon"></i>
-                </div>
-                <div class="threat-map" id="threat-map">
-                    <div style="height: 150px; display: flex; align-items: center; justify-content: center; color: var(--dim-text);">
-                        <i class="fas fa-globe" style="font-size: 4rem; opacity: 0.3;"></i>
-                        <div class="threat-dot" style="top: 30%; left: 25%;"></div>
-                        <div class="threat-dot" style="top: 40%; left: 50%;"></div>
-                        <div class="threat-dot" style="top: 60%; left: 65%;"></div>
-                        <div class="threat-dot" style="top: 50%; left: 30%;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="action-btn btn-traffic">
-                <i class="fas fa-traffic-light btn-icon"></i>
-                TRAFFIC ANALYSIS
-            </button>
-            <button class="action-btn btn-ddos">
-                <i class="fas fa-bolt btn-icon"></i>
-                DDoS SIMULATOR
-            </button>
-            <button class="action-btn btn-tools">
-                <i class="fas fa-tools btn-icon"></i>
-                EXPLOIT TOOLS
-            </button>
-            <button class="action-btn">
-                <i class="fas fa-database btn-icon"></i>
-                VULN DATABASE
-            </button>
-            <button class="action-btn">
-                <i class="fas fa-shield-alt btn-icon"></i>
-                ENCRYPTION
-            </button>
-            <a href="https://instagram.com/h9exe" target="_blank" class="action-btn btn-insta">
-                <i class="fab fa-instagram btn-icon"></i>
-                INSTAGRAM @H9EXE
-            </a>
-        </div>
-
-        <!-- Interactive Terminal -->
-        <div class="terminal-container">
-            <div class="terminal-header">
-                <div class="terminal-title">
-                    <span>h9exe@offensive-lab:~</span>
-                    <span class="terminal-status">LIVE</span>
-                </div>
-                <div class="terminal-controls">
-                    <div class="control-btn close-btn" id="term-close"></div>
-                    <div class="control-btn min-btn" id="term-min"></div>
-                    <div class="control-btn max-btn" id="term-max"></div>
-                </div>
-            </div>
-            <div class="terminal-body" id="terminal-body">
-                <div class="terminal-line" style="color: var(--primary);">████████████████████████████████████████████████████</div>
-                <div class="terminal-line" style="color: var(--primary);">█ H9 OFFENSIVE RESEARCH LAB v3.0 // INTERACTIVE TERMINAL █</div>
-                <div class="terminal-line" style="color: var(--primary);">████████████████████████████████████████████████████</div>
-                <div class="terminal-line"><br></div>
-                <div class="terminal-line">Welcome back, <span style="color: var(--primary); font-weight: bold;">h9exe</span>.</div>
-                <div class="terminal-line">System initialized with quantum-resistant encryption protocols.</div>
-                <div class="terminal-line">Last login: Fri Jan 25 2026 12:30:17 from secure terminal</div>
-                <div class="terminal-line">Type <span style="color: var(--warning);">'help'</span> for available commands or <span style="color: var(--warning);">'start'</span> to begin offensive operations.</div>
-                <div class="terminal-line"><br></div>
-                <div id="terminal-output"></div>
-                <div class="terminal-input">
-                    <span class="prompt">h9exe@lab:~$</span>
-                    <input type="text" class="cmd-input" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
-                    <div class="cursor"></div>
-                </div>
-            </div>
-        </div>
+  <div class="cards">
+    <div class="card">
+      <h3>Attack Simulations</h3>
+      <p id="attackCount">0</p>
     </div>
 
-    <script>
-        // Custom Cursor Logic
-        const cursor = document.querySelector('.cursor');
-        const cursorFollower = document.querySelector('.cursor-follower');
-        
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-            
-            setTimeout(() => {
-                cursorFollower.style.left = e.clientX + 'px';
-                cursorFollower.style.top = e.clientY + 'px';
-            }, 100);
-            
-            // Create particles on mouse move
-            if (Math.random() > 0.7) {
-                createParticle(e.clientX, e.clientY);
-            }
-        });
-        
-        // Interactive cursor changes
-        document.querySelectorAll('button, a, .dashboard-item, .tag').forEach(element => {
-            element.addEventListener('mouseenter', () => {
-                cursor.style.transform = 'scale(1.5)';
-                cursor.style.borderColor = getComputedStyle(element).color;
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                cursor.style.transform = 'scale(1)';
-                cursor.style.borderColor = 'var(--primary)';
-            });
-        });
-        
-        // Particle System
-        function createParticle(x, y) {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            
-            // Random color
-            const colors = ['var(--primary)', 'var(--secondary)', 'var(--warning)', 'var(--danger)'];
-            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            document.getElementById('particles-container').appendChild(particle);
-            
-            // Animate particle
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 2 + Math.random() * 3;
-            const life = 500 + Math.random() * 1000;
-            
-            let opacity = 1;
-            const fadeInterval = setInterval(() => {
-                opacity -= 0.02;
-                particle.style.opacity = opacity;
-                
-                x += Math.cos(angle) * speed;
-                y += Math.sin(angle) * speed;
-                
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                
-                if (opacity <= 0) {
-                    clearInterval(fadeInterval);
-                    particle.remove();
-                }
-            }, 30);
-            
-            setTimeout(() => {
-                clearInterval(fadeInterval);
-                particle.remove();
-            }, life);
-        }
-        
-        // Create initial particles
-        for (let i = 0; i < 50; i++) {
-            setTimeout(() => {
-                createParticle(
-                    Math.random() * window.innerWidth,
-                    Math.random() * window.innerHeight
-                );
-            }, i * 100);
-        }
-        
-        // Real-time Clock
-        function updateClock() {
-            const now = new Date();
-            const dateStr = now.toDateString().toUpperCase().replace(/ /g, '_');
-            const timeStr = now.toTimeString().split(' ')[0];
-            
-            document.getElementById('date-display').textContent = dateStr;
-            document.getElementById('time-display').textContent = timeStr;
-            
-            // Update uptime (simulated)
-            if (!window.startTime) window.startTime = now;
-            const uptimeMs = now - window.startTime;
-            const uptimeStr = new Date(uptimeMs).toISOString().substr(11, 8);
-            document.getElementById('uptime-display').textContent = uptimeStr;
-            
-            // Update key rotation timer
-            const rotationTime = 86400000 - (uptimeMs % 86400000); // 24 hours
-            const rotationStr = new Date(rotationTime).toISOString().substr(11, 8);
-            document.getElementById('key-rotation').textContent = rotationStr;
-        }
-        
-        setInterval(updateClock, 1000);
-        updateClock();
-        
-        // Animated Data Updates
-        function animateData() {
-            // Animate progress bars
-            const bars = ['inbound-bar', 'outbound-bar', 'blocked-bar'];
-            bars.forEach(barId => {
-                const bar = document.getElementById(barId);
-                const currentWidth = parseInt(bar.style.width);
-                const newWidth = Math.max(10, Math.min(100, currentWidth + (Math.random() * 20 - 10)));
-                bar.style.width = newWidth + '%';
-                bar.nextElementSibling.textContent = Math.round(newWidth) + '%';
-            });
-            
-            // Update CPU load
-            const cpuLoad = document.getElementById('cpu-load');
-            const currentLoad = parseInt(cpuLoad.textContent);
-            const newLoad = Math.max(30, Math.min(95, currentLoad + (Math.random() * 10 - 5)));
-            cpuLoad.textContent = Math.round(newLoad) + '%';
-            
-            // Update progress ring
-            const circle = document.querySelector('.progress-ring-circle');
-            const circumference = 283; // 2 * π * r
-            const offset = circumference - (newLoad / 100) * circumference;
-            circle.style.strokeDashoffset = offset;
-            
-            // Add new activity
-            const activities = [
-                "New port scan initiated",
-                "Vulnerability database updated",
-                "Encryption key rotated",
-                "Firewall rule added",
-                "Intrusion detected and blocked",
-                "Data packet analyzed",
-                "Security audit completed",
-                "New exploit tool loaded"
-            ];
-            
-            const activityFeed = document.getElementById('activity-feed');
-            if (Math.random() > 0.7) {
-                const time = new Date().toTimeString().split(' ')[0];
-                const activity = activities[Math.floor(Math.random() * activities.length)];
-                const newActivity = document.createElement('div');
-                newActivity.className = 'terminal-line';
-                newActivity.innerHTML = `<span class="hover-glow" style="color: var(--dim-text);">[${time}]</span> ${activity}`;
-                
-                activityFeed.appendChild(newActivity);
-                
-                // Keep only last 5 activities
-                while (activityFeed.children.length > 5) {
-                    activityFeed.removeChild(activityFeed.firstChild);
-                }
-            }
-            
-            // Create threat dots
-            if (Math.random() > 0.8) {
-                const threatMap = document.getElementById('threat-map');
-                const threatDot = document.createElement('div');
-                threatDot.className = 'threat-dot';
-                threatDot.style.position = 'absolute';
-                threatDot.style.width = '10px';
-                threatDot.style.height = '10px';
-                threatDot.style.borderRadius = '50%';
-                threatDot.style.background = 'var(--danger)';
-                threatDot.style.boxShadow = '0 0 10px var(--danger)';
-                threatDot.style.top = Math.random() * 80 + 10 + '%';
-                threatDot.style.left = Math.random() * 80 + 10 + '%';
-                threatDot.style.animation = 'pulse 2s infinite';
-                
-                threatMap.appendChild(threatDot);
-                
-                setTimeout(() => {
-                    threatDot.remove();
-                }, 5000);
-            }
-        }
-        
-        setInterval(animateData, 3000);
-        
-        // Terminal Logic
-        const terminalInput = document.getElementById('cmd-input');
-        const terminalOutput = document.getElementById('terminal-output');
-        const terminalBody = document.getElementById('terminal-body');
-        
-        const commands = {
-            'help': `<div class="terminal-line">Available commands:</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">help</span> - Show this help message</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">scan</span> - Scan network for targets</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">attack</span> - Initiate offensive operations</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">encrypt</span> - Encrypt sensitive data</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">decrypt</span> - Decrypt secured data</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">status</span> - Show system status</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">clear</span> - Clear terminal</div>
-                    <div class="terminal-line">  <span style="color: var(--warning);">insta</span> - Open Instagram profile</div>`,
-            
-            'scan': `<div class="terminal-line" style="color: var(--primary);">[+] Scanning network...</div>
-                    <div class="terminal-line" style="color: var(--primary);">[+] Found 12 active hosts</div>
-                    <div class="terminal-line" style="color: var(--primary);">[+] 3 targets with open ports detected</div>
-                    <div class="terminal-line" style="color: var(--primary);">[+] Vulnerability scan initiated</div>`,
-            
-            'attack': `<div class="terminal-line" style="color: var(--danger);">[!] Initiating offensive operations...</div>
-                      <div class="terminal-line" style="color: var(--danger);">[!] Loading exploit toolkit...</div>
-                      <div class="terminal-line" style="color: var(--danger);">[!] Establishing connection to target...</div>
-                      <div class="terminal-line" style="color: var(--primary);">[+] Target compromised. Access granted.</div>`,
-            
-            'status': `<div class="terminal-line">System Status:</div>
-                      <div class="terminal-line">  CPU: <span style="color: var(--primary);">${document.getElementById('cpu-load').textContent}</span></div>
-                      <div class="terminal-line">  Memory: <span style="color: var(--primary);">64%</span></div>
-                      <div class="terminal-line">  Network: <span style="color: var(--primary);">Active</span></div>
-                      <div class="terminal-line">  Encryption: <span style="color: var(--primary);">AES-256/RSA-4096</span></div>
-                      <div class="terminal-line">  Uptime: <span style="color: var(--primary);">${document.getElementById('uptime-display').textContent}</span></div>`,
-            
-            'clear': function() {
-                terminalOutput.innerHTML = '';
-                return '';
-            },
-            
-            'insta': `<div class="terminal-line" style="color: #e1306c;">Opening Instagram profile...</div>
-                     <div class="terminal-line" style="color: #e1306c;">Redirecting to https://instagram.com/h9exe</div>`
-        };
-        
-        terminalInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const cmd = terminalInput.value.trim().toLowerCase();
-                processCommand(cmd);
-                terminalInput.value = '';
-            }
-        });
-        
-        function processCommand(cmd) {
-            if (!cmd) return;
-            
-            // Add command to output
-            terminalOutput.innerHTML += `<div class="terminal-line"><span class="prompt">h9exe@lab:~$</span> ${cmd}</div>`;
-            
-            let response = '';
-            
-            if (cmd === 'insta') {
-                setTimeout(() => {
-                    window.open('https://instagram.com/h9exe', '_blank');
-                }, 1000);
-            }
-            
-            if (commands[cmd]) {
-                if (typeof commands[cmd] === 'function') {
-                    response = commands[cmd]();
-                } else {
-                    response = commands[cmd];
-                }
-            } else {
-                response = `<div class="terminal-line" style="color: var(--danger);">Command not found: ${cmd}</div>
-                           <div class="terminal-line">Type 'help' for available commands</div>`;
-            }
-            
-            if (response) {
-                terminalOutput.innerHTML += response;
-            }
-            
-            // Scroll to bottom
-            terminalBody.scrollTop = terminalBody.scrollHeight;
-        }
-        
-        // Terminal Controls
-        document.getElementById('term-close').addEventListener('click', () => {
-            terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--danger);">Connection terminated by user.</div>`;
-            terminalBody.scrollTop = terminalBody.scrollHeight;
-        });
-        
-        document.getElementById('term-min').addEventListener('click', () => {
-            terminalBody.style.height = terminalBody.style.height === '50px' ? '300px' : '50px';
-        });
-        
-        document.getElementById('term-max').addEventListener('click', () => {
-            terminalBody.style.height = terminalBody.style.height === '500px' ? '300px' : '500px';
-        });
-        
-        // Interactive Button Actions
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Ripple effect
-                const ripple = document.createElement('span');
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = event.clientX - rect.left - size / 2;
-                const y = event.clientY - rect.top - size / 2;
-                
-                ripple.style.cssText = `
-                    position: absolute;
-                    border-radius: 50%;
-                    background: rgba(255, 255, 255, 0.5);
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                    width: ${size}px;
-                    height: ${size}px;
-                    top: ${y}px;
-                    left: ${x}px;
-                `;
-                
-                this.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-                
-                // Specific actions
-                if (this.classList.contains('btn-traffic')) {
-                    terminalOutput.innerHTML += `<div class="terminal-line"><span class="prompt">h9exe@lab:~$</span> traffic --analyze</div>`;
-                    terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--secondary);">Analyzing network traffic patterns...</div>`;
-                    terminalBody.scrollTop = terminalBody.scrollHeight;
-                }
-                
-                if (this.classList.contains('btn-ddos')) {
-                    simulateDDoS();
-                }
-                
-                if (this.classList.contains('btn-insta')) {
-                    window.open('https://instagram.com/h9exe', '_blank');
-                }
-            });
-        });
-        
-        // DDoS Simulation
-        function simulateDDoS() {
-            terminalOutput.innerHTML += `<div class="terminal-line"><span class="prompt">h9exe@lab:~$</span> ddos --target 192.168.89.234</div>`;
-            terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--danger);">[!] Initializing DDoS attack...</div>`;
-            
-            let packets = 0;
-            const interval = setInterval(() => {
-                packets += 1000;
-                terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--danger);">[!] Sending ${packets.toLocaleString()} packets to target...</div>`;
-                
-                // Update visual
-                const inboundBar = document.getElementById('inbound-bar');
-                let currentWidth = parseInt(inboundBar.style.width);
-                inboundBar.style.width = Math.min(100, currentWidth + 5) + '%';
-                
-                if (packets >= 10000) {
-                    clearInterval(interval);
-                    terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--primary);">[+] Target unresponsive. Attack successful.</div>`;
-                }
-                
-                terminalBody.scrollTop = terminalBody.scrollHeight;
-            }, 300);
-        }
-        
-        // Add CSS for ripple effect
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-            
-            .threat-dot {
-                position: absolute;
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: var(--danger);
-                box-shadow: 0 0 10px var(--danger);
-                animation: pulse 2s infinite;
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Initialize with animation
-        document.querySelectorAll('.dashboard-item').forEach((item, index) => {
-            item.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s both`;
-        });
-    </script>
+    <div class="card">
+      <h3>Passwords Tested</h3>
+      <p id="passwordCount">0</p>
+    </div>
+
+    <div class="card">
+      <h3>Systems Secured</h3>
+      <p id="systemCount">0</p>
+    </div>
+  </div>
+
+  <div class="terminal" id="terminal"></div>
+</section>
+
+<footer>
+  All activity displayed is fictional and educational. Unauthorized system access is illegal.
+</footer>
+
+<script>
+let attackCount = 0;
+let passwordCount = 0;
+let systemCount = 0;
+
+const attackEl = document.getElementById("attackCount");
+const passEl = document.getElementById("passwordCount");
+const systemEl = document.getElementById("systemCount");
+const terminal = document.getElementById("terminal");
+
+const messages = [
+  "Initializing security modules...",
+  "Simulating credential analysis...",
+  "Testing authentication resilience...",
+  "Analyzing password strength...",
+  "Deploying defensive countermeasures...",
+  "Monitoring network traffic...",
+  "Scanning for vulnerabilities...",
+  "System integrity verified."
+];
+
+function addTerminalLine(text) {
+  const span = document.createElement("span");
+  span.textContent = "> " + text;
+  terminal.appendChild(span);
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+setInterval(() => {
+  attackCount += Math.floor(Math.random() * 3) + 1;
+  passwordCount += Math.floor(Math.random() * 20) + 5;
+  if (Math.random() > 0.6) systemCount++;
+
+  attackEl.textContent = attackCount;
+  passEl.textContent = passwordCount;
+  systemEl.textContent = systemCount;
+
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  addTerminalLine(msg);
+
+}, 1200);
+</script>
+
 </body>
 </html>
