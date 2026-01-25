@@ -2,219 +2,254 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>h9exe | Cybersecurity Dashboard</title>
+<title>h9exe | Cyber Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Inter&display=swap" rel="stylesheet">
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: #050b12;
-  color: #e6f1ff;
+  background: radial-gradient(circle at top, #0b111a, #020409);
+  color:#eaffff;
   font-family: "Inter", sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height:100vh;
+  overflow:hidden;
 }
 
-.background-grid {
-  position: fixed;
-  inset: 0;
-  background-image: linear-gradient(#0f1a24 1px, transparent 1px),
-                    linear-gradient(90deg, #0f1a24 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.25;
-  z-index: -1;
+/* Grid */
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(#0f1a24 1px, transparent 1px),
+    linear-gradient(90deg, #0f1a24 1px, transparent 1px);
+  background-size:40px 40px;
+  opacity:.25;
+  z-index:-1;
 }
 
-header {
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.logo {
-  font-family: "Orbitron", sans-serif;
-  font-size: 3.5rem;
-  color: #00fff7;
-  letter-spacing: 4px;
-  text-shadow: 0 0 15px #00fff7;
-}
-
-.tagline {
-  color: #7bdff2;
-  margin-top: 0.6rem;
-}
-
-.bio {
-  max-width: 750px;
-  margin: auto;
-  text-align: center;
-  padding: 1rem 2rem 2.5rem;
-  color: #bcdfff;
-  line-height: 1.6;
-}
-
+/* Floating dashboard */
 .dashboard {
-  max-width: 1000px;
-  margin: auto;
-  padding: 2rem;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:90%;
+  max-width:1000px;
+  background:linear-gradient(180deg, #0b111a, #05080f);
+  border:1px solid rgba(0,255,255,.4);
+  border-radius:16px;
+  box-shadow:0 0 60px rgba(0,255,255,.25);
+  padding:2rem;
+  animation: float 6s ease-in-out infinite;
 }
 
-.dashboard h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #00fff7;
-  font-family: "Orbitron", sans-serif;
+@keyframes float {
+  0%,100% { transform:translate(-50%,-50%) translateY(0); }
+  50% { transform:translate(-50%,-50%) translateY(-10px); }
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+/* Header */
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  border-bottom:1px solid rgba(0,255,255,.2);
+  padding-bottom:1rem;
 }
 
-.card {
-  background: #0c1724;
-  border: 1px solid #0ff;
-  border-radius: 10px;
-  padding: 1.8rem;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(0,255,255,0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
+.brand h1 {
+  font-family:"Orbitron", sans-serif;
+  font-size:2.8rem;
+  color:#00fff7;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 30px rgba(0,255,255,0.35);
+.brand p {
+  color:#7be7ff;
+  font-size:.85rem;
+  letter-spacing:1px;
 }
 
-.card h3 {
-  color: #7bdff2;
-  margin-bottom: 0.5rem;
+.status {
+  text-align:right;
+  font-size:.8rem;
+  color:#9ff;
 }
 
-.card p {
-  font-size: 2rem;
-  color: #00fff7;
-  font-family: "Orbitron", sans-serif;
+/* Panels */
+.panels {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+  margin-top:1.5rem;
 }
 
+.panel {
+  background:#050b12;
+  border:1px solid rgba(0,255,255,.3);
+  border-radius:12px;
+  padding:1rem;
+  box-shadow:inset 0 0 20px rgba(0,255,255,.15);
+}
+
+.panel h3 {
+  font-size:.8rem;
+  letter-spacing:2px;
+  color:#7be7ff;
+  margin-bottom:.6rem;
+}
+
+/* Bars */
+.bars {
+  display:flex;
+  gap:6px;
+}
+.bar {
+  flex:1;
+  height:22px;
+  background:#0a1a22;
+  border:1px solid #0ff;
+}
+.bar.active {
+  background:#00fff7;
+}
+
+/* Terminal */
 .terminal {
-  background: #02060b;
-  border: 1px solid #0ff;
-  margin-top: 2rem;
-  padding: 1rem;
-  height: 200px;
-  overflow-y: auto;
-  font-family: monospace;
-  color: #00ff9c;
-  box-shadow: inset 0 0 20px rgba(0,255,255,0.2);
+  margin-top:1.5rem;
+  height:140px;
+  background:black;
+  border:1px solid #0ff;
+  padding:10px;
+  font-family:monospace;
+  font-size:.8rem;
+  overflow:auto;
+  color:#00ff9c;
 }
 
-.terminal span {
-  display: block;
-  margin-bottom: 4px;
+/* Buttons */
+.buttons {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+  margin-top:1.5rem;
 }
 
-footer {
-  text-align: center;
-  padding: 2rem;
-  font-size: 0.85rem;
-  color: #7bdff2;
+.btn {
+  padding:.8rem;
+  background:#050b12;
+  border:1px solid #0ff;
+  color:#9ff;
+  text-align:center;
+  border-radius:6px;
+  font-family:"Orbitron";
+  font-size:.7rem;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn:hover {
+  background:#00fff7;
+  color:#000;
+}
+
+/* Instagram */
+.insta {
+  position:absolute;
+  bottom:15px;
+  right:20px;
+  font-size:.9rem;
+}
+.insta a {
+  color:#00fff7;
+  text-decoration:none;
 }
 </style>
 </head>
 
 <body>
-<div class="background-grid"></div>
 
-<header>
-  <h1 class="logo">h9exe</h1>
-  <p class="tagline">Ethical Cybersecurity & Penetration Testing Enthusiast</p>
-</header>
-
-<section class="bio">
-  <p>
-    I’m <strong>h9exe</strong>, a cybersecurity enthusiast focused on understanding how
-    attacks like brute forcing, credential abuse, and exploitation work —
-    so systems can be protected against them. Everything here is
-    simulated, legal, and for educational defense purposes only.
-  </p>
-</section>
-
-<section class="dashboard">
-  <h2>Live Security Activity</h2>
-
-  <div class="cards">
-    <div class="card">
-      <h3>Attack Simulations</h3>
-      <p id="attackCount">0</p>
+<div class="dashboard">
+  <div class="header">
+    <div class="brand">
+      <h1>h9exe</h1>
+      <p>// ETHICAL CYBERSECURITY DASHBOARD //</p>
     </div>
-
-    <div class="card">
-      <h3>Passwords Tested</h3>
-      <p id="passwordCount">0</p>
-    </div>
-
-    <div class="card">
-      <h3>Systems Secured</h3>
-      <p id="systemCount">0</p>
+    <div class="status">
+      <div id="time"></div>
+      <div>UPLINK: <b>SECURE</b></div>
     </div>
   </div>
 
-  <div class="terminal" id="terminal"></div>
-</section>
+  <div class="panels">
+    <div class="panel">
+      <h3>TRAFFIC MONITORING</h3>
+      <div class="bars" id="bars"></div>
+    </div>
+    <div class="panel">
+      <h3>ACTIVE TASKS</h3>
+      <div id="tasks"></div>
+    </div>
+  </div>
 
-<footer>
-  All activity displayed is fictional and educational. Unauthorized system access is illegal.
-</footer>
+  <div class="buttons">
+    <div class="btn">TRAFFIC</div>
+    <div class="btn">SECURITY TEST</div>
+    <div class="btn">PWD ANALYSIS</div>
+    <div class="btn">ETHICAL MODE</div>
+  </div>
+
+  <div class="terminal" id="terminal"></div>
+
+  <div class="insta">
+    Instagram → <a href="https://instagram.com/h9exe" target="_blank">@h9exe</a>
+  </div>
+</div>
 
 <script>
-let attackCount = 0;
-let passwordCount = 0;
-let systemCount = 0;
+/* Time */
+setInterval(()=>{
+  const d=new Date();
+  document.getElementById("time").textContent=d.toLocaleTimeString();
+},1000);
 
-const attackEl = document.getElementById("attackCount");
-const passEl = document.getElementById("passwordCount");
-const systemEl = document.getElementById("systemCount");
-const terminal = document.getElementById("terminal");
-
-const messages = [
-  "Initializing security modules...",
-  "Simulating credential analysis...",
-  "Testing authentication resilience...",
-  "Analyzing password strength...",
-  "Deploying defensive countermeasures...",
-  "Monitoring network traffic...",
-  "Scanning for vulnerabilities...",
-  "System integrity verified."
-];
-
-function addTerminalLine(text) {
-  const span = document.createElement("span");
-  span.textContent = "> " + text;
-  terminal.appendChild(span);
-  terminal.scrollTop = terminal.scrollHeight;
+/* Bars */
+const bars=document.getElementById("bars");
+for(let i=0;i<6;i++){
+  const b=document.createElement("div");
+  b.className="bar";
+  bars.appendChild(b);
 }
 
-setInterval(() => {
-  attackCount += Math.floor(Math.random() * 3) + 1;
-  passwordCount += Math.floor(Math.random() * 20) + 5;
-  if (Math.random() > 0.6) systemCount++;
+setInterval(()=>{
+  [...bars.children].forEach(bar=>{
+    bar.classList.toggle("active",Math.random()>.5);
+  });
+},800);
 
-  attackEl.textContent = attackCount;
-  passEl.textContent = passwordCount;
-  systemEl.textContent = systemCount;
+/* Tasks */
+const tasks=[
+  "Analyzing network patterns...",
+  "Testing password strength...",
+  "Monitoring authentication...",
+  "Verifying system integrity...",
+  "Simulating defensive scans..."
+];
 
-  const msg = messages[Math.floor(Math.random() * messages.length)];
-  addTerminalLine(msg);
+setInterval(()=>{
+  document.getElementById("tasks").innerHTML="> "+tasks[Math.floor(Math.random()*tasks.length)];
+},1500);
 
-}, 1200);
+/* Terminal */
+const term=document.getElementById("terminal");
+setInterval(()=>{
+  const line=document.createElement("div");
+  line.textContent="> System check OK ["+Math.floor(Math.random()*9999)+"]";
+  term.appendChild(line);
+  term.scrollTop=term.scrollHeight;
+},1200);
 </script>
 
 </body>
