@@ -5,121 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>H9 // Offensive Research</title>
     <style>
-        /* CSS STYLING */
         :root {
-            --bg-color: #0a0a0a;
-            --panel-bg: #121212;
+            --bg-color: #050505;
+            --panel-bg: rgba(18, 18, 18, 0.9);
             --text-main: #dcdcdc;
             --accent: #ffffff;
             --dim-text: #666;
             --border: #333;
+            --matrix-green: rgba(0, 255, 70, 0.15);
         }
 
-        body {
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background-color: var(--bg-color);
-            background-image: radial-gradient(var(--border) 1px, transparent 1px);
-            background-size: 30px 30px;
-            color: var(--text-main);
             font-family: 'Courier New', Courier, monospace;
+            overflow: hidden; /* Matrix canvas handles the background */
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 10px; /* Padding for mobile edges */
-            box-sizing: border-box;
+        }
+
+        /* Matrix Canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
         }
 
         .os-container {
+            position: relative;
+            z-index: 1;
             background: var(--panel-bg);
-            width: 100%;
+            width: 95%;
             max-width: 900px;
-            padding: 40px;
+            padding: 30px;
             border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            backdrop-filter: blur(5px);
             box-sizing: border-box;
+        }
+
+        /* Glitch Animation for H9 */
+        .glitch {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: relative;
+            text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
+            animation: glitch 725ms infinite;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00; }
+            15% { text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00; }
+            16% { text-shadow: -0.05em -0.025em 0 #00fffc, 0.025em 0.035em 0 #fc00ff, -0.05em -0.05em 0 #fffc00; }
+            49% { text-shadow: -0.05em -0.025em 0 #00fffc, 0.025em 0.035em 0 #fc00ff, -0.05em -0.05em 0 #fffc00; }
+            50% { text-shadow: 0.05em 0.035em 0 #00fffc, 0.03em 0 0 #fc00ff, 0 -0.04em 0 #fffc00; }
+            99% { text-shadow: 0.05em 0.035em 0 #00fffc, 0.03em 0 0 #fc00ff, 0 -0.04em 0 #fffc00; }
+            100% { text-shadow: -0.05em 0 0 #00fffc, -0.025em -0.04em 0 #fc00ff, -0.04em -0.025em 0 #fffc00; }
         }
 
         header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 40px;
-            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .header-left .status { font-size: 0.7rem; letter-spacing: 2px; color: var(--dim-text); }
-        .header-left h1 { font-size: 2.5rem; margin: 10px 0; color: var(--accent); }
-        .header-left .tags { font-size: 0.8rem; color: var(--dim-text); }
-
-        .header-right { text-align: right; font-size: 0.8rem; line-height: 1.6; }
-        .secure-tag { color: #fff; font-weight: bold; border: 1px solid #fff; padding: 0 4px; }
+        .header-right { text-align: right; font-size: 0.8rem; color: var(--text-main); }
+        .secure-tag { color: #0f0; font-weight: bold; border: 1px solid #0f0; padding: 0 4px; }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .panel {
             border: 1px solid var(--border);
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
         }
 
-        .panel-title { font-size: 0.7rem; color: var(--dim-text); margin-bottom: 15px; text-transform: uppercase; }
+        .panel-title { font-size: 0.7rem; color: var(--dim-text); margin-bottom: 10px; text-transform: uppercase; }
 
-        /* Traffic Bars Animation */
-        .traffic-bars { display: flex; align-items: flex-end; gap: 8px; height: 60px; overflow: hidden; }
-        .bar { background: #555; width: 30px; min-width: 15px; animation: pulse 2s infinite ease-in-out; }
-        .bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
-        .bar:nth-child(2) { height: 80%; animation-delay: 0.3s; }
-        .bar:nth-child(3) { height: 40%; animation-delay: 0.5s; }
-        .bar:nth-child(4) { height: 90%; animation-delay: 0.2s; }
-        .bar:nth-child(5) { height: 50%; animation-delay: 0.4s; }
+        /* Real Dynamic Traffic Bars */
+        .traffic-bars { display: flex; align-items: flex-end; gap: 5px; height: 50px; }
+        .bar { background: #fff; width: 100%; transition: height 0.2s ease; }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scaleY(1); }
-            50% { opacity: 1; transform: scaleY(1.1); }
-        }
-
-        .task-list { list-style: none; padding: 0; font-size: 0.85rem; }
-        .task-list li { margin-bottom: 8px; }
-        .status-blink { animation: blink 1s infinite; color: #fff; }
-
-        @keyframes blink { 50% { opacity: 0; } }
-
-        .nav-buttons { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 25px; }
         .btn {
-            flex: 1;
-            min-width: 120px; /* Ensures buttons don't get too thin on mobile */
-            padding: 12px;
+            padding: 10px;
             border: 1px solid var(--border);
             background: transparent;
             color: var(--accent);
-            font-family: inherit;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: 0.3s;
             text-decoration: none;
             text-align: center;
+            transition: 0.2s;
         }
-        .btn:hover { background: #fff; color: #000; }
+        .btn:hover { background: #fff; color: #000; box-shadow: 0 0 10px #fff; }
+        .btn.insta { border-color: #fc00ff; color: #fc00ff; }
+        .btn.insta:hover { background: #fc00ff; color: #fff; box-shadow: 0 0 15px #fc00ff; }
 
-        /* Terminal Styling */
         .terminal-area {
             background: #000;
             padding: 15px;
             border-radius: 5px;
             font-size: 0.85rem;
-            min-height: 150px;
-            max-height: 300px;
+            height: 200px;
             overflow-y: auto;
             border: 1px solid #222;
         }
-        #terminal-output { white-space: pre-wrap; margin-bottom: 10px; }
         .terminal-input-row { display: flex; gap: 8px; }
         #terminal-input {
             background: transparent;
@@ -128,171 +134,149 @@
             outline: none;
             flex: 1;
             font-family: inherit;
-            font-size: 16px; /* Prevents iOS zoom on input focus */
         }
-        .prompt { color: #888; }
 
-        /* --- MOBILE RESPONSIVE QUERIES --- */
-        @media (max-width: 650px) {
-            .os-container {
-                padding: 20px;
-                border-radius: 10px;
-            }
-
-            header {
-                flex-direction: column;
-                text-align: center;
-                margin-bottom: 25px;
-            }
-
-            .header-right {
-                text-align: center;
-                border-top: 1px solid var(--border);
-                padding-top: 15px;
-            }
-
-            .header-left h1 {
-                font-size: 1.8rem;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr; /* Stack panels vertically */
-            }
-
-            .nav-buttons {
-                display: grid;
-                grid-template-columns: 1fr 1fr; /* 2x2 grid for buttons */
-            }
-
-            .btn {
-                min-width: unset;
-            }
+        @media (max-width: 600px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .header-right { text-align: left; }
+            .os-container { padding: 15px; height: 95vh; overflow-y: auto; }
         }
     </style>
 </head>
 <body>
 
+<canvas id="matrix-canvas"></canvas>
+
 <div class="os-container">
     <header>
         <div class="header-left">
-            <div class="status">[ SYSTEM_LOGGED_IN ]</div>
-            <h1>H9:~#_</h1>
-            <div class="tags">// SA_SEC_OPERATIVE // OFFENSIVE_RESEARCH</div>
+            <div class="status" style="color: #666; font-size: 0.7rem;">[ UPLINK_ESTABLISHED ]</div>
+            <div class="glitch">H9EXE</div>
+            <div style="color: #666; font-size: 0.8rem;">// SA_SEC_OPERATIVE // OFFENSIVE_RECON</div>
         </div>
         <div class="header-right">
             <div id="date-display">JAN_25_2026</div>
-            <div id="clock-display">00:00:00_GMT+3</div>
-            <div>UPLINK: <span class="secure-tag">SECURE</span></div>
+            <div id="clock-display">00:00:00</div>
+            <div>STATUS: <span class="secure-tag">ENCRYPTED</span></div>
         </div>
     </header>
 
     <div class="dashboard-grid">
         <div class="panel">
-            <div class="panel-title">Traffic Monitoring</div>
-            <div class="traffic-bars">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
+            <div class="panel-title">Network Latency</div>
+            <div class="traffic-bars" id="bar-container">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
             </div>
         </div>
         <div class="panel">
-            <div class="panel-title">Active Tasks</div>
-            <ul class="task-list">
-                <li>[>] Brute-forcing Hash... <span id="hash-percent">72%</span></li>
-                <li>[>] Sniffing Packets... <span style="color:var(--dim-text)">DONE</span></li>
-                <li>[>] DDoS Mitigation... <span class="status-blink">RUNNING</span></li>
-            </ul>
+            <div class="panel-title">System Tasking</div>
+            <div style="font-size: 0.8rem;">
+                [>] PWD_BRUTE: <span id="percent" style="color:#fff">0%</span><br>
+                [>] TARGET: <span style="color:#fff">H9-SEC.NET</span><br>
+                [>] PROXY: <span style="color:#0f0">ACTIVE</span>
+            </div>
         </div>
     </div>
 
     <div class="nav-buttons">
-        <a href="#" class="btn">TRAFFIC</a>
-        <a href="#" class="btn">DDOS TOOLS</a>
-        <a href="#" class="btn">PWD CRACK</a>
-        <a href="#" class="btn">ETHICAL HACK</a>
+        <a href="#" class="btn" onclick="processCommand('scan')">SCANNER</a>
+        <a href="#" class="btn" onclick="processCommand('crack')">CRACK_TOOL</a>
+        <a href="https://instagram.com/h9exe" target="_blank" class="btn insta">INSTAGRAM: @H9EXE</a>
     </div>
 
     <div class="terminal-area">
-        <div id="terminal-output">Welcome to H9-OS v2.4. Type 'help' to begin.</div>
+        <div id="terminal-output">H9-OS v3.0 // Ready for input...</div>
         <div class="terminal-input-row">
-            <span class="prompt">h9exe@offensive-lab:~$</span>
+            <span style="color:#888">h9exe@offensive-lab:~$</span>
             <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false">
         </div>
     </div>
 </div>
 
 <script>
-    // 1. Live Clock Function
-    function updateClock() {
-        const now = new Date();
-        const timeStr = now.toTimeString().split(' ')[0] + "_GMT+3";
-        document.getElementById('clock-display').innerText = timeStr;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    // 1. Matrix Animation
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
 
-    // 2. Terminal Logic
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0F0"; // Green text
+        ctx.font = fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 35);
+
+    // 2. Real-time Clock
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('clock-display').innerText = now.toTimeString().split(' ')[0] + "_GMT+3";
+    }, 1000);
+
+    // 3. Dynamic Traffic Bars
+    function updateBars() {
+        const bars = document.querySelectorAll('.bar');
+        bars.forEach(bar => {
+            const height = Math.floor(Math.random() * 100);
+            bar.style.height = height + "%";
+            bar.style.opacity = (height / 100) + 0.2;
+        });
+    }
+    setInterval(updateBars, 300);
+
+    // 4. Task Percentage
+    let p = 0;
+    setInterval(() => {
+        p = p < 100 ? p + 1 : 0;
+        document.getElementById('percent').innerText = p + "%";
+    }, 500);
+
+    // 5. Terminal Logic
     const input = document.getElementById('terminal-input');
     const output = document.getElementById('terminal-output');
-    const terminalArea = document.querySelector('.terminal-area');
 
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-            const cmd = input.value.trim().toLowerCase();
-            processCommand(cmd);
+            processCommand(input.value.toLowerCase().trim());
             input.value = '';
         }
     });
 
     function processCommand(cmd) {
-        if (!cmd) return;
-        output.innerHTML += `<div><span class="prompt">h9exe@offensive-lab:~$</span> ${cmd}</div>`;
+        if(!cmd) return;
+        output.innerHTML += `<div><span style="color:#888">h9exe@lab:~$</span> ${cmd}</div>`;
         
-        let response = "";
-        switch(cmd) {
-            case 'help':
-                response = "Commands: clear, crack, scan, status, whoami";
-                break;
-            case 'whoami':
-                response = "User: h9exe | Role: Offensive Security Researcher | Location: Saudi Arabia";
-                break;
-            case 'clear':
-                output.innerHTML = "";
-                return;
-            case 'scan':
-                response = "[...] Scanning local subnet for vulnerabilities...\n[!] Vulnerability found in Port 80 (SQLi candidate).";
-                break;
-            case 'crack':
-                startCrackingAnimation();
-                return;
-            case 'status':
-                response = "Uplink: Stable\nBattery: 88%\nVPN: Active (Encrypted Tunnel)";
-                break;
-            default:
-                response = `Command not found: ${cmd}`;
+        if (cmd === 'instagram' || cmd === 'insta') {
+            output.innerHTML += `<div>[REDIRECT] Opening @h9exe uplink...</div>`;
+            window.open('https://instagram.com/h9exe', '_blank');
+        } else if (cmd === 'crack') {
+            let i = 0;
+            const interval = setInterval(() => {
+                output.innerHTML += `<div>[TRYING] HASH_BLOCK_${Math.floor(Math.random()*999)}... FAIL</div>`;
+                output.parentElement.scrollTop = output.parentElement.scrollHeight;
+                if (i++ > 5) {
+                    clearInterval(interval);
+                    output.innerHTML += `<div style="color:#fff">[SUCCESS] KEY_FOUND: 'H9_ADMIN_PASS'</div><br>`;
+                }
+            }, 100);
+        } else if (cmd === 'clear') {
+            output.innerHTML = "";
+        } else {
+            output.innerHTML += `<div>System: Command '${cmd}' not recognized.</div>`;
         }
-        
-        output.innerHTML += `<div>${response}</div><br>`;
-        terminalArea.scrollTop = terminalArea.scrollHeight;
-    }
-
-    // 3. Simulated Cracking Animation
-    function startCrackingAnimation() {
-        let iterations = 0;
-        const interval = setInterval(() => {
-            const hex = Math.random().toString(16).substring(2, 10).toUpperCase();
-            output.innerHTML += `<div>[TRYING] HASH_SEED: ${hex}... FAIL</div>`;
-            terminalArea.scrollTop = terminalArea.scrollHeight;
-            iterations++;
-            
-            if (iterations > 10) {
-                clearInterval(interval);
-                output.innerHTML += `<div style="color: #fff; font-weight: bold;">[SUCCESS] CRACKED: 'admin_pass_2026'</div><br>`;
-                terminalArea.scrollTop = terminalArea.scrollHeight;
-            }
-        }, 150)
+        output.parentElement.scrollTop = output.parentElement.scrollHeight;
     }
 </script>
 
