@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H9 // Offensive Research Lab</title>
+    <title>H9 // Offensive Research Lab - Interactive</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-color: #0a0a0a;
@@ -17,282 +18,554 @@
             --secondary: #0088ff;
             --danger: #ff0055;
             --warning: #ffaa00;
+            --purple: #aa00ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(0deg, rgba(0, 40, 0, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px, 100% 2px;
             color: var(--text-main);
-            font-family: 'Courier New', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Courier New', 'Consolas', monospace;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
             overflow-x: hidden;
-        }
-
-        .os-container {
-            background: var(--panel-bg);
-            width: 100%;
-            max-width: 1200px;
-            padding: 30px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 
-                0 20px 50px rgba(0,0,0,0.8),
-                0 0 0 1px rgba(0, 255, 0, 0.05);
+            cursor: none;
             position: relative;
-            z-index: 1;
         }
 
-        /* Scanlines effect */
-        .os-container::before {
-            content: "";
-            position: absolute;
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.2s, width 0.3s, height 0.3s;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.5s;
+        }
+
+        /* Background Grid */
+        .grid-bg {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                transparent 50%, 
-                rgba(0, 20, 0, 0.03) 50%
-            );
-            background-size: 100% 3px;
-            pointer-events: none;
-            z-index: 2;
-            border-radius: 20px;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.5;
         }
 
+        /* Animated Background Elements */
+        .floating-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.05;
+            filter: blur(40px);
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: 10%;
+            left: 10%;
+            animation: float 25s infinite linear;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--secondary);
+            top: 60%;
+            right: 15%;
+            animation: float 20s infinite linear reverse;
+        }
+
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            background: var(--danger);
+            bottom: 20%;
+            left: 20%;
+            animation: float 15s infinite linear;
+        }
+
+        /* Scanlines Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 20, 0, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        /* Main Container */
+        .os-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header with Interactive Elements */
         header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 40px;
-            flex-wrap: wrap;
-            gap: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
             position: relative;
+            flex-wrap: wrap;
         }
 
-        .header-left h1 { 
-            font-size: 2.8rem; 
-            margin: 5px 0; 
-            color: var(--primary);
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-            letter-spacing: -1px;
+        .header-glow {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--primary), 
+                var(--secondary), 
+                var(--primary), 
+                transparent);
+            filter: blur(2px);
         }
-        
-        .header-left .tags { 
-            font-size: 0.8rem; 
-            color: var(--dim-text);
+
+        .header-left h1 {
+            font-size: 3rem;
+            color: transparent;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .header-left h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s;
+        }
+
+        .header-left h1:hover::after {
+            transform: scaleX(1);
+        }
+
+        .tag-container {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
-        
+
         .tag {
             background: rgba(0, 255, 0, 0.1);
-            padding: 3px 8px;
-            border-radius: 3px;
-            border-left: 2px solid var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .header-right { 
-            text-align: right; 
-            font-size: 0.8rem; 
-            line-height: 1.6;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 0, 0.1);
-            min-width: 180px;
+
+        .tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left 0.5s;
         }
-        
-        .secure-tag { 
-            color: var(--primary); 
-            font-weight: bold; 
-            border: 1px solid var(--primary); 
-            padding: 0 6px;
-            border-radius: 3px;
-            background: rgba(0, 255, 0, 0.05);
+
+        .tag:hover::before {
+            left: 100%;
         }
-        
+
+        .tag:hover {
+            background: rgba(0, 255, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .header-right {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            min-width: 250px;
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            transition: transform 0.3s;
+        }
+
+        .header-right:hover {
+            transform: translateY(-5px) rotateX(5deg);
+        }
+
         .status-indicator {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.7rem;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
+
+        .pulsing-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: var(--primary);
-            box-shadow: 0 0 5px var(--primary);
+            box-shadow: 0 0 10px var(--primary);
             animation: pulse 2s infinite;
         }
 
+        /* Interactive Dashboard */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(12, 1fr);
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
-        .panel {
-            border: 1px solid var(--border);
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
+        .dashboard-item {
+            background: rgba(18, 18, 18, 0.8);
+            border: 1px solid rgba(0, 255, 0, 0.1);
             border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s, border-color 0.3s;
-        }
-        
-        .panel:hover {
-            transform: translateY(-3px);
-            border-color: rgba(0, 255, 0, 0.3);
         }
 
-        .panel-title { 
-            font-size: 0.7rem; 
-            color: var(--dim-text); 
-            margin-bottom: 15px; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .dashboard-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.5s;
+        }
+
+        .dashboard-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .dashboard-item:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.1);
+        }
+
+        .item-1 { grid-column: span 3; }
+        .item-2 { grid-column: span 3; }
+        .item-3 { grid-column: span 3; }
+        .item-4 { grid-column: span 3; }
+        .item-5 { grid-column: span 6; }
+        .item-6 { grid-column: span 6; }
+
+        .item-title {
+            font-size: 0.9rem;
+            color: var(--dim-text);
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .panel-icon {
+
+        .item-icon {
             color: var(--primary);
-            font-size: 0.9rem;
+            font-size: 1.2rem;
         }
 
-        /* Traffic Visualization */
-        .traffic-visual {
+        /* Animated Data Visualization */
+        .data-visual {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
-        
-        .traffic-item {
+
+        .data-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
-            padding: 5px 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
         }
-        
-        .traffic-source {
+
+        .data-label {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.8rem;
         }
-        
-        .source-dot {
-            width: 6px;
-            height: 6px;
+
+        .data-color {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
         }
-        
-        .source-dot.us { background: var(--secondary); }
-        .source-dot.eu { background: var(--warning); }
-        .source-dot.asia { background: var(--danger); }
-        
-        .traffic-bar {
-            height: 4px;
-            background: rgba(0, 255, 0, 0.2);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-        
-        .traffic-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 2px;
-            animation: loading 3s infinite;
-        }
 
-        /* System Metrics */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .metric {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px;
-            border-radius: 5px;
-            font-size: 0.7rem;
-        }
-        
-        .metric-label {
-            color: var(--dim-text);
-            margin-bottom: 3px;
-        }
-        
-        .metric-value {
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .progress-bar {
-            height: 4px;
+        .data-bar-container {
+            width: 60%;
+            height: 8px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 5px;
+            border-radius: 4px;
             overflow: hidden;
         }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 2px;
-        }
 
-        .nav-buttons { 
-            display: flex; 
-            gap: 12px; 
-            margin-bottom: 30px; 
-            flex-wrap: wrap;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            border: 1px solid rgba(0, 255, 0, 0.1);
-        }
-        
-        .btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px;
-            border: 1px solid var(--border);
-            background: rgba(0, 0, 0, 0.5);
-            color: var(--accent);
-            font-size: 0.8rem;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.3s;
-            border-radius: 5px;
+        .data-bar {
+            height: 100%;
+            border-radius: 4px;
             position: relative;
             overflow: hidden;
         }
-        
-        .btn::before {
-            content: "";
+
+        .data-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        /* Circular Progress */
+        .circular-progress {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Interactive Terminal */
+        .terminal-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 40px;
+            box-shadow: 
+                0 10px 40px rgba(0, 255, 0, 0.1),
+                inset 0 0 30px rgba(0, 255, 0, 0.05);
+            position: relative;
+        }
+
+        .terminal-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(0, 255, 0, 0.02) 50%, 
+                transparent 70%);
+            pointer-events: none;
+        }
+
+        .terminal-header {
+            background: linear-gradient(90deg, #0a0a0a, #1a1a1a);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .terminal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .terminal-status {
+            padding: 3px 8px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 0.7rem;
+            animation: pulse 2s infinite;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .close-btn { background: #ff5f56; }
+        .min-btn { background: #ffbd2e; }
+        .max-btn { background: #27ca3f; }
+
+        .terminal-body {
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .prompt {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .cmd-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background: var(--primary);
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+
+        /* Interactive Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .action-btn::before {
+            content: '';
             position: absolute;
             top: 0;
             left: -100%;
@@ -301,600 +574,605 @@
             background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
             transition: left 0.5s;
         }
-        
-        .btn:hover::before {
+
+        .action-btn:hover::before {
             left: 100%;
         }
-        
-        .btn:hover { 
-            background: rgba(0, 255, 0, 0.1); 
+
+        .action-btn:hover {
             border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 0, 0.2);
         }
-        
+
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
         .btn-traffic { border-color: var(--secondary); color: var(--secondary); }
-        .btn-traffic:hover { background: rgba(0, 136, 255, 0.1); }
-        
         .btn-ddos { border-color: var(--danger); color: var(--danger); }
-        .btn-ddos:hover { background: rgba(255, 0, 85, 0.1); }
-        
         .btn-tools { border-color: var(--warning); color: var(--warning); }
-        .btn-tools:hover { background: rgba(255, 170, 0, 0.1); }
-        
-        .btn-insta { 
-            border-color: #e1306c; 
-            color: #e1306c; 
-            min-width: 160px;
-        }
-        
-        .btn-insta:hover { 
-            background: rgba(225, 48, 108, 0.1); 
-            box-shadow: 0 0 10px rgba(225, 48, 108, 0.3);
-        }
+        .btn-insta { border-color: #e1306c; color: #e1306c; }
 
-        /* Terminal Styling */
-        .floating-terminal {
-            background: #000;
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 
-                0 10px 30px rgba(0, 255, 0, 0.05),
-                inset 0 0 20px rgba(0, 255, 0, 0.02);
-            margin-top: 30px;
-            position: relative;
-        }
-        
-        .floating-terminal::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(0, 255, 0, 0.01) 50%, 
-                transparent 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .terminal-header {
-            background: linear-gradient(90deg, #1a1a1a, #0f0f0f);
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-
-        .terminal-title { 
-            font-size: 0.7rem; 
-            color: #888; 
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .terminal-status {
-            color: var(--primary);
-            font-weight: bold;
-        }
-        
-        .terminal-controls { display: flex; gap: 6px; }
-        .dot { 
-            width: 10px; 
-            height: 10px; 
-            border-radius: 50%; 
-            background: #333;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .dot:hover { opacity: 0.8; }
-        .dot.red { background: #ff5f56; }
-        .dot.yellow { background: #ffbd2e; }
-        .dot.green { background: #27ca3f; }
-
-        .terminal-area {
-            padding: 15px;
-            font-size: 0.85rem;
-            height: 250px;
-            overflow-y: auto;
-            background: rgba(0, 5, 0, 0.5);
-            font-family: 'Consolas', 'Monaco', monospace;
-        }
-        
-        .terminal-line {
-            margin-bottom: 5px;
-            line-height: 1.4;
-        }
-        
-        .terminal-output {
-            color: #0f0;
-        }
-        
-        .terminal-error {
-            color: #f55;
-        }
-        
-        .terminal-info {
-            color: #5af;
-        }
-        
-        .terminal-warning {
-            color: #ff5;
-        }
-
-        .terminal-input-row { 
-            display: flex; 
-            gap: 8px; 
-            align-items: center;
-            margin-top: 10px;
-        }
-        
-        #terminal-input {
-            background: transparent;
-            border: none;
-            color: #0f0;
-            outline: none;
-            flex: 1;
-            font-family: inherit;
-            font-size: 0.9rem;
-            caret-color: #0f0;
-        }
-        
-        .prompt { 
-            color: var(--primary); 
-            font-weight: bold;
-        }
-        
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 16px;
-            background: #0f0;
-            animation: blink 1s infinite;
-            margin-left: 2px;
-        }
-
-        /* Attack Visualization */
-        .attack-visual {
-            position: absolute;
+        /* Floating Particles */
+        .particles {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
             z-index: 0;
-            overflow: hidden;
-            border-radius: 20px;
-        }
-        
-        .attack-line {
-            position: absolute;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.3), transparent);
-            height: 1px;
-            animation: attackMove 3s linear infinite;
-        }
-        
-        .data-node {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: var(--primary);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--primary);
         }
 
-        /* Footer */
-        .footer {
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(0, 255, 0, 0.1);
-            font-size: 0.7rem;
-            color: var(--dim-text);
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
         }
-        
-        .footer-links {
-            display: flex;
-            gap: 15px;
+
+        /* Hover Effects */
+        .hover-glow {
+            transition: all 0.3s;
         }
-        
-        .footer-link {
-            color: var(--dim-text);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-link:hover {
-            color: var(--primary);
+
+        .hover-glow:hover {
+            text-shadow: 0 0 10px currentColor;
         }
 
         /* Animations */
-        @keyframes pulse { 
-            0%, 100% { opacity: 1; } 
-            50% { opacity: 0.5; } 
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -20px) rotate(90deg); }
+            50% { transform: translate(0, -40px) rotate(180deg); }
+            75% { transform: translate(-20px, -20px) rotate(270deg); }
         }
-        
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
         }
-        
-        @keyframes loading {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-        
-        @keyframes attackMove {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100vw); }
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
-        /* Responsive Design */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
         @media (max-width: 1100px) {
-            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-item {
+                grid-column: span 6 !important;
+            }
         }
-        
+
         @media (max-width: 768px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .os-container { padding: 15px; }
-            header { flex-direction: column; }
-            .header-right { text-align: left; margin-top: 10px; }
-            .nav-buttons { justify-content: center; }
-            .btn { min-width: calc(50% - 12px); }
-        }
-        
-        @media (max-width: 480px) {
-            .btn { min-width: 100%; }
-            .terminal-area { height: 200px; }
+            .dashboard-item {
+                grid-column: span 12 !important;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .header-right {
+                width: 100%;
+            }
+            
+            .action-btn {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Attack Visualization Background -->
-    <div class="attack-visual" id="attack-visual"></div>
+    <!-- Custom Cursors -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
     
+    <!-- Background Elements -->
+    <div class="grid-bg"></div>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles-container"></div>
+    
+    <!-- Main Content -->
     <div class="os-container">
         <header>
             <div class="header-left">
                 <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span>[ SYSTEM_ACTIVE ]</span>
+                    <div class="pulsing-dot"></div>
+                    <span class="hover-glow">[ SYSTEM_ACTIVE // CONNECTION_SECURE ]</span>
                 </div>
-                <h1>H9:// OFFENSIVE_LAB</h1>
-                <div class="tags">
-                    <span class="tag">SA_SEC_OPERATIVE</span>
-                    <span class="tag">OFFENSIVE_RESEARCH</span>
-                    <span class="tag">PENETRATION_TESTING</span>
+                <h1 class="hover-glow">H9:// OFFENSIVE_RESEARCH</h1>
+                <div class="tag-container">
+                    <div class="tag">PENETRATION_TESTING</div>
+                    <div class="tag">CRYPTOGRAPHY</div>
+                    <div class="tag">NETWORK_SECURITY</div>
+                    <div class="tag">BRUTE_FORCE</div>
+                    <div class="tag">REVERSE_ENGINEERING</div>
                 </div>
             </div>
             <div class="header-right">
-                <div id="date-display">JAN_25_2026</div>
-                <div id="clock-display">00:00:00 GMT+3</div>
-                <div>UPLINK: <span class="secure-tag">H9EXE</span></div>
-                <div>SESSION: <span id="session-time">00:00:00</span></div>
+                <div class="data-row">
+                    <span class="data-label">DATE:</span>
+                    <span id="date-display" class="hover-glow">JAN_25_2026</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">TIME:</span>
+                    <span id="time-display" class="hover-glow">00:00:00</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">UPTIME:</span>
+                    <span id="uptime-display" class="hover-glow">00:00:00</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">SESSION:</span>
+                    <span class="secure-tag hover-glow">H9EXE_ACTIVE</span>
+                </div>
             </div>
+            <div class="header-glow"></div>
         </header>
 
+        <!-- Interactive Dashboard -->
         <div class="dashboard-grid">
-            <div class="panel">
-                <div class="panel-title">
-                    <span>Network Traffic</span>
-                    <span class="panel-icon">📡</span>
+            <div class="dashboard-item item-1">
+                <div class="item-title">
+                    <span>NETWORK TRAFFIC</span>
+                    <i class="fas fa-network-wired item-icon"></i>
                 </div>
-                <div class="traffic-visual">
-                    <div class="traffic-item">
-                        <div class="traffic-source">
-                            <div class="source-dot us"></div>
-                            <span>US-WEST</span>
+                <div class="data-visual">
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--primary);"></div>
+                            <span>INBOUND</span>
                         </div>
-                        <span>42.5%</span>
-                    </div>
-                    <div class="traffic-bar">
-                        <div class="traffic-fill" style="width: 42.5%;"></div>
-                    </div>
-                    
-                    <div class="traffic-item">
-                        <div class="traffic-source">
-                            <div class="source-dot eu"></div>
-                            <span>EU-CENTRAL</span>
+                        <div class="data-bar-container">
+                            <div class="data-bar" id="inbound-bar" style="background: var(--primary); width: 65%;"></div>
                         </div>
-                        <span>28.3%</span>
+                        <span>65%</span>
                     </div>
-                    <div class="traffic-bar">
-                        <div class="traffic-fill" style="width: 28.3%;"></div>
-                    </div>
-                    
-                    <div class="traffic-item">
-                        <div class="traffic-source">
-                            <div class="source-dot asia"></div>
-                            <span>ASIA-PACIFIC</span>
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--secondary);"></div>
+                            <span>OUTBOUND</span>
                         </div>
-                        <span>19.2%</span>
+                        <div class="data-bar-container">
+                            <div class="data-bar" id="outbound-bar" style="background: var(--secondary); width: 42%;"></div>
+                        </div>
+                        <span>42%</span>
                     </div>
-                    <div class="traffic-bar">
-                        <div class="traffic-fill" style="width: 19.2%;"></div>
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--danger);"></div>
+                            <span>BLOCKED</span>
+                        </div>
+                        <div class="data-bar-container">
+                            <div class="data-bar" id="blocked-bar" style="background: var(--danger); width: 23%;"></div>
+                        </div>
+                        <span>23%</span>
                     </div>
                 </div>
             </div>
-            
-            <div class="panel">
-                <div class="panel-title">
-                    <span>System Metrics</span>
-                    <span class="panel-icon">⚙️</span>
+
+            <div class="dashboard-item item-2">
+                <div class="item-title">
+                    <span>SYSTEM LOAD</span>
+                    <i class="fas fa-microchip item-icon"></i>
                 </div>
-                <div class="metrics-grid">
-                    <div class="metric">
-                        <div class="metric-label">CPU Load</div>
-                        <div class="metric-value">78%</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 78%;"></div>
-                        </div>
+                <div class="circular-progress">
+                    <svg class="progress-ring" viewBox="0 0 100 100">
+                        <circle class="progress-ring-circle" cx="50" cy="50" r="45" 
+                                stroke="url(#gradient1)" stroke-width="8"
+                                style="stroke-dashoffset: 113.2;"></circle>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="var(--primary)" />
+                                <stop offset="100%" stop-color="var(--secondary)" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="progress-text" id="cpu-load">78%</div>
+                </div>
+            </div>
+
+            <div class="dashboard-item item-3">
+                <div class="item-title">
+                    <span>ENCRYPTION STATUS</span>
+                    <i class="fas fa-lock item-icon"></i>
+                </div>
+                <div class="data-visual">
+                    <div class="data-row">
+                        <span>AES-256:</span>
+                        <span class="hover-glow" style="color: var(--primary);">ACTIVE</span>
                     </div>
-                    <div class="metric">
-                        <div class="metric-label">Memory</div>
-                        <div class="metric-value">64%</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 64%;"></div>
-                        </div>
+                    <div class="data-row">
+                        <span>RSA-4096:</span>
+                        <span class="hover-glow" style="color: var(--primary);">ACTIVE</span>
                     </div>
-                    <div class="metric">
-                        <div class="metric-label">Bandwidth</div>
-                        <div class="metric-value">1.2 Gbps</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 60%;"></div>
-                        </div>
+                    <div class="data-row">
+                        <span>QUANTUM:</span>
+                        <span class="hover-glow" style="color: var(--warning);">PENDING</span>
                     </div>
-                    <div class="metric">
-                        <div class="metric-label">Encryption</div>
-                        <div class="metric-value">AES-256</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%;"></div>
-                        </div>
+                    <div class="data-row">
+                        <span>KEY ROTATION:</span>
+                        <span id="key-rotation" class="hover-glow">12:34:15</span>
                     </div>
                 </div>
             </div>
-            
-            <div class="panel">
-                <div class="panel-title">
-                    <span>Current Objective</span>
-                    <span class="panel-icon">🎯</span>
+
+            <div class="dashboard-item item-4">
+                <div class="item-title">
+                    <span>TARGET STATUS</span>
+                    <i class="fas fa-crosshairs item-icon"></i>
                 </div>
-                <div style="font-size: 0.85rem; line-height: 1.6;">
-                    <div class="terminal-line">[>] TARGET: <span class="terminal-info">ENCRYPTED_SERVER_01</span></div>
-                    <div class="terminal-line">[>] IP: <span class="terminal-info">192.168.89.234</span></div>
-                    <div class="terminal-line">[>] METHOD: <span class="terminal-warning">BRUTE_FORCE</span></div>
-                    <div class="terminal-line">[>] PROGRESS: <span class="terminal-info">██████████ 65%</span></div>
-                    <div class="terminal-line">[>] STATUS: <span class="terminal-output">ACTIVE</span></div>
+                <div class="data-visual">
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--primary);"></div>
+                            <span>ACTIVE</span>
+                        </div>
+                        <span>3</span>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--warning);"></div>
+                            <span>PENDING</span>
+                        </div>
+                        <span>5</span>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--danger);"></div>
+                            <span>BLOCKED</span>
+                        </div>
+                        <span>2</span>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">
+                            <div class="data-color" style="background: var(--secondary);"></div>
+                            <span>COMPROMISED</span>
+                        </div>
+                        <span>7</span>
+                    </div>
                 </div>
             </div>
-            
-            <div class="panel">
-                <div class="panel-title">
-                    <span>Recent Activity</span>
-                    <span class="panel-icon">📊</span>
+
+            <div class="dashboard-item item-5">
+                <div class="item-title">
+                    <span>LIVE ACTIVITY</span>
+                    <i class="fas fa-stream item-icon"></i>
                 </div>
-                <div style="font-size: 0.75rem; line-height: 1.6;">
-                    <div class="terminal-line">[12:34] Port scan completed</div>
-                    <div class="terminal-line">[12:28] Vulnerability detected</div>
-                    <div class="terminal-line">[12:15] SSH brute force initiated</div>
-                    <div class="terminal-line">[11:59] Firewall bypassed</div>
-                    <div class="terminal-line">[11:42] New target acquired</div>
+                <div class="activity-feed" id="activity-feed">
+                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:34:45]</span> Port scan initiated on 192.168.1.0/24</div>
+                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:35:12]</span> Vulnerability detected: CVE-2024-1234</div>
+                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:36:03]</span> Brute force attack in progress (65%)</div>
+                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:37:22]</span> Firewall bypass successful</div>
+                    <div class="terminal-line"><span class="hover-glow" style="color: var(--dim-text);">[12:38:45]</span> Data exfiltration started</div>
+                </div>
+            </div>
+
+            <div class="dashboard-item item-6">
+                <div class="item-title">
+                    <span>THREAT MAP</span>
+                    <i class="fas fa-globe-americas item-icon"></i>
+                </div>
+                <div class="threat-map" id="threat-map">
+                    <div style="height: 150px; display: flex; align-items: center; justify-content: center; color: var(--dim-text);">
+                        <i class="fas fa-globe" style="font-size: 4rem; opacity: 0.3;"></i>
+                        <div class="threat-dot" style="top: 30%; left: 25%;"></div>
+                        <div class="threat-dot" style="top: 40%; left: 50%;"></div>
+                        <div class="threat-dot" style="top: 60%; left: 65%;"></div>
+                        <div class="threat-dot" style="top: 50%; left: 30%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="nav-buttons">
-            <a href="#" class="btn btn-traffic">TRAFFIC ANALYSIS</a>
-            <a href="#" class="btn btn-ddos">DDoS SIMULATOR</a>
-            <a href="#" class="btn btn-tools">EXPLOIT TOOLS</a>
-            <a href="#" class="btn">VULN DATABASE</a>
-            <a href="#" class="btn">ENCRYPTION</a>
-            <a href="https://instagram.com/h9exe" target="_blank" class="btn btn-insta">INSTAGRAM: @H9EXE</a>
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn btn-traffic">
+                <i class="fas fa-traffic-light btn-icon"></i>
+                TRAFFIC ANALYSIS
+            </button>
+            <button class="action-btn btn-ddos">
+                <i class="fas fa-bolt btn-icon"></i>
+                DDoS SIMULATOR
+            </button>
+            <button class="action-btn btn-tools">
+                <i class="fas fa-tools btn-icon"></i>
+                EXPLOIT TOOLS
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-database btn-icon"></i>
+                VULN DATABASE
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-shield-alt btn-icon"></i>
+                ENCRYPTION
+            </button>
+            <a href="https://instagram.com/h9exe" target="_blank" class="action-btn btn-insta">
+                <i class="fab fa-instagram btn-icon"></i>
+                INSTAGRAM @H9EXE
+            </a>
         </div>
 
-        <div class="floating-terminal">
+        <!-- Interactive Terminal -->
+        <div class="terminal-container">
             <div class="terminal-header">
                 <div class="terminal-title">
-                    <span>h9exe@offensive-lab: ~/operations</span>
-                    <span class="terminal-status">[LIVE]</span>
+                    <span>h9exe@offensive-lab:~</span>
+                    <span class="terminal-status">LIVE</span>
                 </div>
                 <div class="terminal-controls">
-                    <div class="dot red" title="Close"></div>
-                    <div class="dot yellow" title="Minimize"></div>
-                    <div class="dot green" title="Maximize"></div>
+                    <div class="control-btn close-btn" id="term-close"></div>
+                    <div class="control-btn min-btn" id="term-min"></div>
+                    <div class="control-btn max-btn" id="term-max"></div>
                 </div>
             </div>
-            <div class="terminal-area" id="terminal-area">
-                <div id="terminal-output">
-                    <div class="terminal-line terminal-info">████████████████████████████████████████████████████</div>
-                    <div class="terminal-line terminal-info">█ H9 OFFENSIVE RESEARCH LAB // v2.3.8 █</div>
-                    <div class="terminal-line terminal-info">█ Secure terminal initialized █</div>
-                    <div class="terminal-line terminal-info">████████████████████████████████████████████████████</div>
-                    <div class="terminal-line"><br></div>
-                    <div class="terminal-line">Welcome back, <span class="terminal-output">h9exe</span>.</div>
-                    <div class="terminal-line">Last login: Fri Jan 25 2026 11:42:17 GMT+3 from secure terminal</div>
-                    <div class="terminal-line">Type <span class="terminal-warning">'help'</span> for available commands.</div>
-                    <div class="terminal-line"><br></div>
-                </div>
-                <div class="terminal-input-row">
+            <div class="terminal-body" id="terminal-body">
+                <div class="terminal-line" style="color: var(--primary);">████████████████████████████████████████████████████</div>
+                <div class="terminal-line" style="color: var(--primary);">█ H9 OFFENSIVE RESEARCH LAB v3.0 // INTERACTIVE TERMINAL █</div>
+                <div class="terminal-line" style="color: var(--primary);">████████████████████████████████████████████████████</div>
+                <div class="terminal-line"><br></div>
+                <div class="terminal-line">Welcome back, <span style="color: var(--primary); font-weight: bold;">h9exe</span>.</div>
+                <div class="terminal-line">System initialized with quantum-resistant encryption protocols.</div>
+                <div class="terminal-line">Last login: Fri Jan 25 2026 12:30:17 from secure terminal</div>
+                <div class="terminal-line">Type <span style="color: var(--warning);">'help'</span> for available commands or <span style="color: var(--warning);">'start'</span> to begin offensive operations.</div>
+                <div class="terminal-line"><br></div>
+                <div id="terminal-output"></div>
+                <div class="terminal-input">
                     <span class="prompt">h9exe@lab:~$</span>
-                    <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false">
+                    <input type="text" class="cmd-input" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
                     <div class="cursor"></div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <div>H9 Offensive Research Lab © 2026 // All activities logged and encrypted</div>
-            <div class="footer-links">
-                <a href="#" class="footer-link">SECURITY POLICY</a>
-                <a href="#" class="footer-link">LOGS</a>
-                <a href="#" class="footer-link">ENCRYPTION KEYS</a>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. Real-time Clock and Date
-        function updateDateTime() {
+        // Custom Cursor Logic
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+            
+            // Create particles on mouse move
+            if (Math.random() > 0.7) {
+                createParticle(e.clientX, e.clientY);
+            }
+        });
+        
+        // Interactive cursor changes
+        document.querySelectorAll('button, a, .dashboard-item, .tag').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(1.5)';
+                cursor.style.borderColor = getComputedStyle(element).color;
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursor.style.borderColor = 'var(--primary)';
+            });
+        });
+        
+        // Particle System
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            
+            // Random color
+            const colors = ['var(--primary)', 'var(--secondary)', 'var(--warning)', 'var(--danger)'];
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            document.getElementById('particles-container').appendChild(particle);
+            
+            // Animate particle
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 3;
+            const life = 500 + Math.random() * 1000;
+            
+            let opacity = 1;
+            const fadeInterval = setInterval(() => {
+                opacity -= 0.02;
+                particle.style.opacity = opacity;
+                
+                x += Math.cos(angle) * speed;
+                y += Math.sin(angle) * speed;
+                
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                
+                if (opacity <= 0) {
+                    clearInterval(fadeInterval);
+                    particle.remove();
+                }
+            }, 30);
+            
+            setTimeout(() => {
+                clearInterval(fadeInterval);
+                particle.remove();
+            }, life);
+        }
+        
+        // Create initial particles
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                createParticle(
+                    Math.random() * window.innerWidth,
+                    Math.random() * window.innerHeight
+                );
+            }, i * 100);
+        }
+        
+        // Real-time Clock
+        function updateClock() {
             const now = new Date();
             const dateStr = now.toDateString().toUpperCase().replace(/ /g, '_');
             const timeStr = now.toTimeString().split(' ')[0];
-            const gmtStr = `GMT+${-now.getTimezoneOffset()/60}`;
             
-            document.getElementById('date-display').innerText = dateStr;
-            document.getElementById('clock-display').innerText = `${timeStr} ${gmtStr}`;
+            document.getElementById('date-display').textContent = dateStr;
+            document.getElementById('time-display').textContent = timeStr;
             
-            // Update session time
-            if (!window.sessionStartTime) {
-                window.sessionStartTime = now;
-            }
+            // Update uptime (simulated)
+            if (!window.startTime) window.startTime = now;
+            const uptimeMs = now - window.startTime;
+            const uptimeStr = new Date(uptimeMs).toISOString().substr(11, 8);
+            document.getElementById('uptime-display').textContent = uptimeStr;
             
-            const sessionDiff = Math.floor((now - window.sessionStartTime) / 1000);
-            const hours = Math.floor(sessionDiff / 3600);
-            const minutes = Math.floor((sessionDiff % 3600) / 60);
-            const seconds = sessionDiff % 60;
-            
-            document.getElementById('session-time').innerText = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            // Update key rotation timer
+            const rotationTime = 86400000 - (uptimeMs % 86400000); // 24 hours
+            const rotationStr = new Date(rotationTime).toISOString().substr(11, 8);
+            document.getElementById('key-rotation').textContent = rotationStr;
         }
         
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
+        setInterval(updateClock, 1000);
+        updateClock();
         
-        // 2. Create Attack Visualization
-        function createAttackVisualization() {
-            const visual = document.getElementById('attack-visual');
-            
-            // Create attack lines
-            for (let i = 0; i < 8; i++) {
-                const line = document.createElement('div');
-                line.className = 'attack-line';
-                line.style.top = `${Math.random() * 100}%`;
-                line.style.width = `${20 + Math.random() * 60}%`;
-                line.style.opacity = 0.1 + Math.random() * 0.3;
-                line.style.animationDelay = `${Math.random() * 5}s`;
-                line.style.animationDuration = `${3 + Math.random() * 7}s`;
-                visual.appendChild(line);
-            }
-            
-            // Create data nodes
-            for (let i = 0; i < 15; i++) {
-                const node = document.createElement('div');
-                node.className = 'data-node';
-                node.style.left = `${Math.random() * 100}%`;
-                node.style.top = `${Math.random() * 100}%`;
-                node.style.animation = `float ${3 + Math.random() * 7}s infinite ease-in-out`;
-                node.style.animationDelay = `${Math.random() * 5}s`;
-                visual.appendChild(node);
-            }
-        }
-        
-        createAttackVisualization();
-        
-        // 3. Animate progress bars
-        function animateMetrics() {
-            const metrics = document.querySelectorAll('.metric');
-            
-            metrics.forEach(metric => {
-                const valueElement = metric.querySelector('.metric-value');
-                const progressFill = metric.querySelector('.progress-fill');
-                
-                if (valueElement && progressFill) {
-                    const currentValue = parseInt(valueElement.textContent);
-                    const targetValue = currentValue + (Math.random() * 10 - 5);
-                    const newValue = Math.min(100, Math.max(0, targetValue));
-                    
-                    // Animate to new value
-                    valueElement.textContent = `${Math.round(newValue)}%`;
-                    progressFill.style.width = `${newValue}%`;
-                }
+        // Animated Data Updates
+        function animateData() {
+            // Animate progress bars
+            const bars = ['inbound-bar', 'outbound-bar', 'blocked-bar'];
+            bars.forEach(barId => {
+                const bar = document.getElementById(barId);
+                const currentWidth = parseInt(bar.style.width);
+                const newWidth = Math.max(10, Math.min(100, currentWidth + (Math.random() * 20 - 10)));
+                bar.style.width = newWidth + '%';
+                bar.nextElementSibling.textContent = Math.round(newWidth) + '%';
             });
+            
+            // Update CPU load
+            const cpuLoad = document.getElementById('cpu-load');
+            const currentLoad = parseInt(cpuLoad.textContent);
+            const newLoad = Math.max(30, Math.min(95, currentLoad + (Math.random() * 10 - 5)));
+            cpuLoad.textContent = Math.round(newLoad) + '%';
+            
+            // Update progress ring
+            const circle = document.querySelector('.progress-ring-circle');
+            const circumference = 283; // 2 * π * r
+            const offset = circumference - (newLoad / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            
+            // Add new activity
+            const activities = [
+                "New port scan initiated",
+                "Vulnerability database updated",
+                "Encryption key rotated",
+                "Firewall rule added",
+                "Intrusion detected and blocked",
+                "Data packet analyzed",
+                "Security audit completed",
+                "New exploit tool loaded"
+            ];
+            
+            const activityFeed = document.getElementById('activity-feed');
+            if (Math.random() > 0.7) {
+                const time = new Date().toTimeString().split(' ')[0];
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const newActivity = document.createElement('div');
+                newActivity.className = 'terminal-line';
+                newActivity.innerHTML = `<span class="hover-glow" style="color: var(--dim-text);">[${time}]</span> ${activity}`;
+                
+                activityFeed.appendChild(newActivity);
+                
+                // Keep only last 5 activities
+                while (activityFeed.children.length > 5) {
+                    activityFeed.removeChild(activityFeed.firstChild);
+                }
+            }
+            
+            // Create threat dots
+            if (Math.random() > 0.8) {
+                const threatMap = document.getElementById('threat-map');
+                const threatDot = document.createElement('div');
+                threatDot.className = 'threat-dot';
+                threatDot.style.position = 'absolute';
+                threatDot.style.width = '10px';
+                threatDot.style.height = '10px';
+                threatDot.style.borderRadius = '50%';
+                threatDot.style.background = 'var(--danger)';
+                threatDot.style.boxShadow = '0 0 10px var(--danger)';
+                threatDot.style.top = Math.random() * 80 + 10 + '%';
+                threatDot.style.left = Math.random() * 80 + 10 + '%';
+                threatDot.style.animation = 'pulse 2s infinite';
+                
+                threatMap.appendChild(threatDot);
+                
+                setTimeout(() => {
+                    threatDot.remove();
+                }, 5000);
+            }
         }
         
-        setInterval(animateMetrics, 5000);
+        setInterval(animateData, 3000);
         
-        // 4. Terminal Logic
-        const terminalInput = document.getElementById('terminal-input');
+        // Terminal Logic
+        const terminalInput = document.getElementById('cmd-input');
         const terminalOutput = document.getElementById('terminal-output');
-        const terminalArea = document.querySelector('.terminal-area');
+        const terminalBody = document.getElementById('terminal-body');
         
         const commands = {
-            'help': "Available commands: <br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>whoami</span> - Display user information<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>scan</span> - Scan network for vulnerabilities<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>crack</span> - Initiate brute force attack<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>encrypt</span> - Encrypt sensitive data<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>decrypt</span> - Decrypt secured data<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>insta</span> - Open Instagram profile<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>clear</span> - Clear terminal<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>sysinfo</span> - Display system information<br>" +
-                   "&nbsp;&nbsp;<span class='terminal-warning'>targets</span> - List current targets",
-                   
-            'whoami': "USER: h9exe<br>" +
-                     "ROLE: Security Analyst / Penetration Tester<br>" +
-                     "LOCATION: Saudi Arabia<br>" +
-                     "SPECIALIZATION: Offensive Security, Brute Force, Cryptanalysis<br>" +
-                     "STATUS: <span class='terminal-output'>ACTIVE</span>",
-                     
-            'sysinfo': "SYSTEM INFORMATION:<br>" +
-                      "&nbsp;&nbsp;OS: H9 Security Distro v2.3.8<br>" +
-                      "&nbsp;&nbsp;Kernel: 5.15.0-86-generic<br>" +
-                      "&nbsp;&nbsp;CPU: Intel Xeon E5-2690 v4 @ 2.60GHz (28 cores)<br>" +
-                      "&nbsp;&nbsp;RAM: 128GB DDR4 ECC<br>" +
-                      "&nbsp;&nbsp;Storage: 4TB NVMe SSD (Encrypted)<br>" +
-                      "&nbsp;&nbsp;Network: 10 Gbps Dedicated Uplink",
-                      
-            'targets': "CURRENT TARGETS:<br>" +
-                      "&nbsp;&nbsp;1. ENCRYPTED_SERVER_01 (65% complete)<br>" +
-                      "&nbsp;&nbsp;2. FIREWALL_ALPHA (Queued)<br>" +
-                      "&nbsp;&nbsp;3. DATABASE_CLUSTER_03 (Researching)<br>" +
-                      "&nbsp;&nbsp;4. VPN_GATEWAY_12 (Monitoring)",
-                      
-            'encrypt': "Initializing AES-256 encryption...<br>" +
-                      "Generating secure key... <span class='terminal-output'>DONE</span><br>" +
-                      "Encrypting data streams... <span class='terminal-output'>DONE</span><br>" +
-                      "Securing key with RSA-4096... <span class='terminal-output'>DONE</span><br>" +
-                      "<span class='terminal-info'>Encryption complete. Data secured.</span>",
-                      
-            'decrypt': "<span class='terminal-warning'>WARNING: Decryption requires authorization.</span><br>" +
-                      "Please enter security clearance level:",
-                      
-            'insta': "Opening secure uplink to Instagram profile...<br>" +
-                    "<span class='terminal-info'>Redirecting to https://instagram.com/h9exe</span>",
-                    
-            'scan': "Initializing network scan...<br>" +
-                   "Scanning 192.168.89.0/24 subnet...<br>" +
-                   "[+] Port 22 (SSH) open on 192.168.89.234<br>" +
-                   "[+] Port 80 (HTTP) open on 192.168.89.120<br>" +
-                   "[+] Port 443 (HTTPS) open on 192.168.89.234<br>" +
-                   "[+] Port 3389 (RDP) open on 192.168.89.201<br>" +
-                   "[!] Vulnerability detected: CVE-2024-1234 on 192.168.89.234:443<br>" +
-                   "<span class='terminal-output'>Scan complete. 4 hosts with open ports found.</span>",
-                   
+            'help': `<div class="terminal-line">Available commands:</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">help</span> - Show this help message</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">scan</span> - Scan network for targets</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">attack</span> - Initiate offensive operations</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">encrypt</span> - Encrypt sensitive data</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">decrypt</span> - Decrypt secured data</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">status</span> - Show system status</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">clear</span> - Clear terminal</div>
+                    <div class="terminal-line">  <span style="color: var(--warning);">insta</span> - Open Instagram profile</div>`,
+            
+            'scan': `<div class="terminal-line" style="color: var(--primary);">[+] Scanning network...</div>
+                    <div class="terminal-line" style="color: var(--primary);">[+] Found 12 active hosts</div>
+                    <div class="terminal-line" style="color: var(--primary);">[+] 3 targets with open ports detected</div>
+                    <div class="terminal-line" style="color: var(--primary);">[+] Vulnerability scan initiated</div>`,
+            
+            'attack': `<div class="terminal-line" style="color: var(--danger);">[!] Initiating offensive operations...</div>
+                      <div class="terminal-line" style="color: var(--danger);">[!] Loading exploit toolkit...</div>
+                      <div class="terminal-line" style="color: var(--danger);">[!] Establishing connection to target...</div>
+                      <div class="terminal-line" style="color: var(--primary);">[+] Target compromised. Access granted.</div>`,
+            
+            'status': `<div class="terminal-line">System Status:</div>
+                      <div class="terminal-line">  CPU: <span style="color: var(--primary);">${document.getElementById('cpu-load').textContent}</span></div>
+                      <div class="terminal-line">  Memory: <span style="color: var(--primary);">64%</span></div>
+                      <div class="terminal-line">  Network: <span style="color: var(--primary);">Active</span></div>
+                      <div class="terminal-line">  Encryption: <span style="color: var(--primary);">AES-256/RSA-4096</span></div>
+                      <div class="terminal-line">  Uptime: <span style="color: var(--primary);">${document.getElementById('uptime-display').textContent}</span></div>`,
+            
             'clear': function() {
                 terminalOutput.innerHTML = '';
-                return "";
-            }
+                return '';
+            },
+            
+            'insta': `<div class="terminal-line" style="color: #e1306c;">Opening Instagram profile...</div>
+                     <div class="terminal-line" style="color: #e1306c;">Redirecting to https://instagram.com/h9exe</div>`
         };
         
         terminalInput.addEventListener('keydown', (e) => {
@@ -911,11 +1189,12 @@
             // Add command to output
             terminalOutput.innerHTML += `<div class="terminal-line"><span class="prompt">h9exe@lab:~$</span> ${cmd}</div>`;
             
-            let response = "";
+            let response = '';
             
-            if (cmd === 'crack') {
-                startCrackingAnimation();
-                return;
+            if (cmd === 'insta') {
+                setTimeout(() => {
+                    window.open('https://instagram.com/h9exe', '_blank');
+                }, 1000);
             }
             
             if (commands[cmd]) {
@@ -924,106 +1203,128 @@
                 } else {
                     response = commands[cmd];
                 }
-                
-                if (cmd === 'insta') {
-                    setTimeout(() => {
-                        window.open('https://instagram.com/h9exe', '_blank');
-                    }, 1000);
-                }
             } else {
-                response = `<span class="terminal-error">Command not found: ${cmd}</span><br>Type 'help' for available commands.`;
+                response = `<div class="terminal-line" style="color: var(--danger);">Command not found: ${cmd}</div>
+                           <div class="terminal-line">Type 'help' for available commands</div>`;
             }
             
             if (response) {
-                terminalOutput.innerHTML += `<div class="terminal-line">${response}</div><br>`;
+                terminalOutput.innerHTML += response;
             }
             
-            terminalArea.scrollTop = terminalArea.scrollHeight;
+            // Scroll to bottom
+            terminalBody.scrollTop = terminalBody.scrollHeight;
         }
         
-        function startCrackingAnimation() {
-            let attempts = 0;
-            const maxAttempts = 12;
+        // Terminal Controls
+        document.getElementById('term-close').addEventListener('click', () => {
+            terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--danger);">Connection terminated by user.</div>`;
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        });
+        
+        document.getElementById('term-min').addEventListener('click', () => {
+            terminalBody.style.height = terminalBody.style.height === '50px' ? '300px' : '50px';
+        });
+        
+        document.getElementById('term-max').addEventListener('click', () => {
+            terminalBody.style.height = terminalBody.style.height === '500px' ? '300px' : '500px';
+        });
+        
+        // Interactive Button Actions
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.5);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    width: ${size}px;
+                    height: ${size}px;
+                    top: ${y}px;
+                    left: ${x}px;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Specific actions
+                if (this.classList.contains('btn-traffic')) {
+                    terminalOutput.innerHTML += `<div class="terminal-line"><span class="prompt">h9exe@lab:~$</span> traffic --analyze</div>`;
+                    terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--secondary);">Analyzing network traffic patterns...</div>`;
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }
+                
+                if (this.classList.contains('btn-ddos')) {
+                    simulateDDoS();
+                }
+                
+                if (this.classList.contains('btn-insta')) {
+                    window.open('https://instagram.com/h9exe', '_blank');
+                }
+            });
+        });
+        
+        // DDoS Simulation
+        function simulateDDoS() {
+            terminalOutput.innerHTML += `<div class="terminal-line"><span class="prompt">h9exe@lab:~$</span> ddos --target 192.168.89.234</div>`;
+            terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--danger);">[!] Initializing DDoS attack...</div>`;
             
-            terminalOutput.innerHTML += `<div class="terminal-line terminal-info">[!] Initializing brute force attack on ENCRYPTED_SERVER_01...</div>`;
-            
+            let packets = 0;
             const interval = setInterval(() => {
-                attempts++;
+                packets += 1000;
+                terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--danger);">[!] Sending ${packets.toLocaleString()} packets to target...</div>`;
                 
-                if (attempts <= maxAttempts) {
-                    const hex = Math.random().toString(16).substring(2, 10).toUpperCase();
-                    const progress = Math.floor((attempts / maxAttempts) * 100);
-                    
-                    terminalOutput.innerHTML += `<div class="terminal-line">[ATTEMPT ${attempts.toString().padStart(3, '0')}] Testing seed ${hex}... <span class="terminal-error">FAILED</span></div>`;
-                    
-                    // Update progress in the panel
-                    const progressElement = document.querySelector('.panel:nth-child(3) .terminal-line:nth-child(4)');
-                    if (progressElement) {
-                        progressElement.innerHTML = `[>] PROGRESS: <span class="terminal-info">${'█'.repeat(Math.floor(progress/10))}${'░'.repeat(10-Math.floor(progress/10))} ${progress}%</span>`;
-                    }
-                }
+                // Update visual
+                const inboundBar = document.getElementById('inbound-bar');
+                let currentWidth = parseInt(inboundBar.style.width);
+                inboundBar.style.width = Math.min(100, currentWidth + 5) + '%';
                 
-                if (attempts >= maxAttempts) {
+                if (packets >= 10000) {
                     clearInterval(interval);
-                    
-                    terminalOutput.innerHTML += `<div class="terminal-line"><br></div>`;
-                    terminalOutput.innerHTML += `<div class="terminal-line terminal-output">[SUCCESS] Access granted to ENCRYPTED_SERVER_01</div>`;
-                    terminalOutput.innerHTML += `<div class="terminal-line terminal-info">Establishing secure shell connection...</div>`;
-                    terminalOutput.innerHTML += `<div class="terminal-line terminal-output">Connection established. You now have root access.</div><br>`;
-                    
-                    // Update status in the panel
-                    const statusElement = document.querySelector('.panel:nth-child(3) .terminal-line:nth-child(5)');
-                    if (statusElement) {
-                        statusElement.innerHTML = `[>] STATUS: <span class="terminal-output">COMPROMISED</span>`;
-                    }
+                    terminalOutput.innerHTML += `<div class="terminal-line" style="color: var(--primary);">[+] Target unresponsive. Attack successful.</div>`;
                 }
                 
-                terminalArea.scrollTop = terminalArea.scrollHeight;
-            }, 200);
+                terminalBody.scrollTop = terminalBody.scrollHeight;
+            }, 300);
         }
         
-        // 5. Add click events to terminal controls
-        document.querySelector('.dot.red').addEventListener('click', () => {
-            terminalOutput.innerHTML += `<div class="terminal-line terminal-error">Connection terminated by user.</div><br>`;
-            terminalArea.scrollTop = terminalArea.scrollHeight;
-        });
-        
-        document.querySelector('.dot.yellow').addEventListener('click', () => {
-            terminalArea.style.height = terminalArea.style.height === '50px' ? '250px' : '50px';
-        });
-        
-        document.querySelector('.dot.green').addEventListener('click', () => {
-            terminalArea.style.height = terminalArea.style.height === '400px' ? '250px' : '400px';
-        });
-        
-        // 6. Add random system updates
-        setInterval(() => {
-            const activities = [
-                "Port scan completed on subnet 10.0.1.0/24",
-                "New vulnerability database updated",
-                "Encrypted backup created",
-                "Network traffic anomaly detected",
-                "Security audit in progress",
-                "Firewall rules updated",
-                "Intrusion detection system activated"
-            ];
-            
-            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-            const time = new Date().toTimeString().split(' ')[0];
-            
-            const activityPanel = document.querySelector('.panel:nth-child(4)');
-            if (activityPanel) {
-                const activityLines = activityPanel.querySelectorAll('.terminal-line');
-                if (activityLines.length >= 6) {
-                    activityLines[5].remove();
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
                 }
-                
-                const newActivity = document.createElement('div');
-                newActivity.className = 'terminal-line';
-                newActivity.textContent = `[${time}] ${randomActivity}`;
-                activityPanel.querySelector('div:nth-child(2)').prepend(newActivity);
             }
-        }, 15000);
+            
+            .threat-dot {
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--danger);
+                box-shadow: 0 0 10px var(--danger);
+                animation: pulse 2s infinite;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize with animation
+        document.querySelectorAll('.dashboard-item').forEach((item, index) => {
+            item.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s both`;
+        });
     </script>
 </body>
 </html>
