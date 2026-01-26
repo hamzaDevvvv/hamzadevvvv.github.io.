@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>h9exe // Advanced Command Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>h9exe // Command Center</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00ff9d; /* Neon Green */
-            --accent: #0084ff;  /* Cyber Blue */
+            --accent: #ff3e3e;  /* Red for DDOS */
+            --blue: #0084ff;
             --bg: #050506;
-            --panel-bg: rgba(15, 15, 20, 0.8);
+            --panel-bg: rgba(15, 15, 20, 0.95);
             --border: rgba(255, 255, 255, 0.1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--bg);
@@ -22,305 +23,267 @@
                 radial-gradient(circle at 50% 50%, rgba(0, 255, 157, 0.05) 0%, transparent 80%),
                 linear-gradient(var(--border) 1px, transparent 1px),
                 linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 100% 100%, 40px 40px, 40px 40px;
+            background-size: 100% 100%, 30px 30px, 30px 30px;
             color: #e0e0e0;
-            font-family: 'JetBrains+Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
             height: 100vh;
-            overflow: hidden;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         /* Scanline Effect */
         body::after {
-            content: " ";
+            content: "";
             position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 4px, 3px 100%;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
             z-index: 100;
             pointer-events: none;
+            opacity: 0.3;
         }
 
-        .main-frame {
-            width: 95vw;
-            height: 90vh;
-            max-width: 1400px;
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            grid-template-rows: auto 1fr auto;
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
             gap: 15px;
-            padding: 20px;
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            border-radius: 5px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 10;
         }
 
-        /* --- Header --- */
+        /* Header */
         header {
-            grid-column: 1 / -1;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
         }
 
-        .logo-area .title {
+        .title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 900;
-            letter-spacing: 5px;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
             color: var(--primary);
-            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
         }
 
-        .status-tag {
-            font-size: 10px;
-            background: rgba(0, 255, 157, 0.1);
-            color: var(--primary);
-            padding: 4px 8px;
-            border: 1px solid var(--primary);
-            border-radius: 3px;
-            text-transform: uppercase;
-        }
-
-        /* --- Panels --- */
+        /* Panel Styling */
         .panel {
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--panel-bg);
             border: 1px solid var(--border);
-            padding: 15px;
-            overflow: hidden;
-            position: relative;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .panel-header {
-            font-size: 12px;
-            color: var(--accent);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(0, 132, 255, 0.2);
-            padding-bottom: 5px;
-        }
-
-        /* --- Components --- */
-        .stat-row { margin-bottom: 12px; }
-        .label { font-size: 10px; color: #888; display: block; margin-bottom: 4px; }
-        .progress-bg { height: 4px; background: #222; width: 100%; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.5s; box-shadow: 0 0 10px var(--primary); }
-
+        /* Terminal Area */
         .terminal-box {
-            grid-column: 2;
+            flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0; /* Important for scrolling */
         }
 
         #output {
-            flex-grow: 1;
-            font-size: 13px;
-            color: #ccc;
+            flex: 1;
             overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.5;
             margin-bottom: 10px;
-            padding-right: 10px;
+            padding-right: 5px;
         }
 
         .input-line {
             display: flex;
-            gap: 10px;
             align-items: center;
             background: rgba(255,255,255,0.05);
             padding: 10px;
             border-radius: 4px;
         }
 
-        .input-line span { color: var(--primary); }
+        .input-line span { color: var(--primary); margin-right: 10px; font-weight: bold; }
+        
         input {
             background: transparent;
             border: none;
-            color: white;
+            color: #fff;
             outline: none;
-            flex-grow: 1;
+            width: 100%;
             font-family: inherit;
+            font-size: 14px;
         }
 
-        .node-list { font-size: 11px; }
-        .node-item { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 5px 0; 
-            border-bottom: 1px solid rgba(255,255,255,0.03); 
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
         }
-        .online { color: var(--primary); }
 
-        /* --- Footer --- */
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-left: 2px solid var(--blue);
+        }
+
+        .stat-label { font-size: 10px; color: #666; text-transform: uppercase; }
+        .stat-value { font-size: 14px; color: var(--blue); }
+
+        /* Footer */
         footer {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #666;
-            padding-top: 10px;
+            text-align: center;
+            padding: 10px;
+            font-size: 11px;
+            color: #444;
+            border-top: 1px solid var(--border);
         }
 
-        .insta-link {
-            color: var(--accent);
+        .insta-tag {
+            color: var(--primary);
             text-decoration: none;
             font-weight: bold;
-            transition: 0.3s;
         }
-        .insta-link:hover { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+
+        /* Animations */
+        .loading-bar {
+            height: 2px;
+            background: var(--accent);
+            width: 0%;
+            box-shadow: 0 0 10px var(--accent);
+            margin: 10px 0;
+        }
 
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); }
     </style>
 </head>
 <body>
 
-<div class="main-frame">
+<div class="container">
     <header>
-        <div class="logo-area">
+        <div>
             <div class="title">h9exe</div>
-            <div style="font-size: 10px; letter-spacing: 2px; color: #555;">&lt; NEURAL NETWORK INTERFACE v4.0.2 &gt;</div>
+            <div style="font-size: 10px; color: #888;">// ETHICAL_OPERATIONS_MODE</div>
         </div>
         <div style="text-align: right">
-            <div id="clock" style="font-size: 18px; color: white;">00:00:00</div>
-            <div class="status-tag" id="network-status">Uplink: Active</div>
+            <div id="clock" style="color: white; font-size: 14px;">00:00:00</div>
+            <div style="color: var(--primary); font-size: 9px;">● ENCRYPTION: ACTIVE</div>
         </div>
     </header>
 
-    <aside class="panel">
-        <div class="panel-header"><span>SYSTEM RESOURCES</span><span>%</span></div>
-        <div class="stat-row">
-            <span class="label">CPU LOAD</span>
-            <div class="progress-bg"><div class="progress-fill" id="cpu-bar" style="width: 45%"></div></div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Uplink Status</div>
+            <div class="stat-value">SECURE</div>
         </div>
-        <div class="stat-row">
-            <span class="label">MEMORY ALLOCATION</span>
-            <div class="progress-bg"><div class="progress-fill" id="ram-bar" style="width: 22%"></div></div>
+        <div class="stat-card" style="border-left-color: var(--primary);">
+            <div class="stat-label">Traffic Load</div>
+            <div class="stat-value" id="load-val">12.4%</div>
         </div>
-        <div class="stat-row">
-            <span class="label">NETWORK LATENCY</span>
-            <div class="progress-bg"><div class="progress-fill" id="ping-bar" style="width: 12%; background: var(--accent); box-shadow: 0 0 10px var(--accent);"></div></div>
-        </div>
+    </div>
 
-        <div class="panel-header" style="margin-top: 30px;"><span>ACTIVE ENCRYPTION</span></div>
-        <div id="encryption-key" style="font-size: 10px; word-break: break-all; color: #555;">
-            AES-256-GCM: Initializing...
-        </div>
-    </aside>
-
-    <section class="panel terminal-box">
-        <div class="panel-header"><span>ROOT CONSOLE</span><span>h9exe@secure_server:~</span></div>
+    <main class="panel terminal-box">
         <div id="output"></div>
         <div class="input-line">
-            <span>&gt;</span>
-            <input type="text" id="commandInput" placeholder="Enter command..." autocomplete="off">
+            <span>$</span>
+            <input type="text" id="cmd" placeholder="Type 'help' or 'ddos'..." autocomplete="off" autofocus>
         </div>
-    </section>
-
-    <aside class="panel">
-        <div class="panel-header"><span>GLOBAL THREAT FEED</span></div>
-        <div id="threat-feed" class="node-list">
-            </div>
-
-        <div class="panel-header" style="margin-top: 30px;"><span>REMOTE NODES</span></div>
-        <div class="node-list">
-            <div class="node-item"><span>Tokyo_Hub_01</span><span class="online">ONLINE</span></div>
-            <div class="node-item"><span>Berlin_Edge_9</span><span class="online">ONLINE</span></div>
-            <div class="node-item"><span>NYC_Vault</span><span style="color: #ff3e3e;">LOCKED</span></div>
-            <div class="node-item"><span>London_Relay</span><span class="online">ONLINE</span></div>
-        </div>
-    </aside>
+    </main>
 
     <footer>
-        <div>LOC: 34.0522° N, 118.2437° W (ENCRYPTED)</div>
-        <div>
-            FOLLOW OPERATIONS: 
-            <a href="https://instagram.com/h9exe" target="_blank" class="insta-link">@h9exe</a>
-        </div>
+        SYS_OPERATOR: h9exe | <a href="https://instagram.com/h9exe" target="_blank" class="insta-tag">@h9exe</a>
     </footer>
 </div>
 
 <script>
     const output = document.getElementById('output');
-    const input = document.getElementById('commandInput');
+    const cmdInput = document.getElementById('cmd');
 
-    // 1. Clock
+    // 1. Live Clock
     setInterval(() => {
         document.getElementById('clock').textContent = new Date().toLocaleTimeString();
     }, 1000);
 
-    // 2. Randomize System Bars
+    // 2. Random Load Generator
     setInterval(() => {
-        document.getElementById('cpu-bar').style.width = Math.floor(Math.random() * 40 + 30) + '%';
-        document.getElementById('ram-bar').style.width = Math.floor(Math.random() * 20 + 50) + '%';
-        document.getElementById('ping-bar').style.width = Math.floor(Math.random() * 15 + 5) + '%';
-    }, 2000);
+        document.getElementById('load-val').textContent = (Math.random() * 80).toFixed(1) + "%";
+    }, 3000);
 
-    // 3. Threat Feed Generator
-    const threats = ["Inbound connection blocked", "Brute force detected: IP 192.168.1.1", "Packet sniff intercepted", "SSH handshake successful", "Firewall rules updated", "Database query optimized"];
-    function addThreat() {
-        const feed = document.getElementById('threat-feed');
-        const div = document.createElement('div');
-        div.className = 'node-item';
-        div.style.fontSize = '9px';
-        div.innerHTML = `<span>${threats[Math.floor(Math.random() * threats.length)]}</span><span style="color:#555">${new Date().toLocaleTimeString()}</span>`;
-        feed.prepend(div);
-        if(feed.children.length > 8) feed.lastChild.remove();
-    }
-    setInterval(addThreat, 3000);
-
-    // 4. Terminal Logic
-    function print(text, type = 'info') {
-        const line = document.createElement('div');
-        line.style.marginBottom = '5px';
-        const colors = { info: '#ccc', success: '#00ff9d', error: '#ff3e3e', accent: '#0084ff' };
-        line.style.color = colors[type];
-        line.innerHTML = `<span style="color: #555">[${new Date().toLocaleTimeString()}]</span> ${text}`;
-        output.appendChild(line);
-        output.scrollTop = output.scrollHeight;
+    // 3. Print to Terminal
+    function print(text, color = "#ccc", delay = 0) {
+        setTimeout(() => {
+            const div = document.createElement('div');
+            div.style.color = color;
+            div.style.marginBottom = '5px';
+            div.innerHTML = `<span style="color: #444;">[${new Date().toLocaleTimeString([], {hour12:false})}]</span> ${text}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }, delay);
     }
 
-    // Initial sequence
-    setTimeout(() => print("Initializing secure kernel...", 'accent'), 500);
-    setTimeout(() => print("Establishing handshake with h9exe proxy...", 'accent'), 1200);
-    setTimeout(() => print("ACCESS GRANTED: WELCOME OPERATOR", 'success'), 2000);
+    // 4. Initial Boot
+    print("Initializing h9exe secure environment...", var(--blue), 500);
+    print("Loading modules... DONE", var(--primary), 1000);
+    print("Welcome back, Operator h9exe. Type 'help' to start.", "#fff", 1500);
 
-    input.addEventListener('keypress', (e) => {
+    // 5. Command Logic
+    cmdInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            const cmd = input.value.toLowerCase();
-            print(`guest@h9exe:~$ ${cmd}`);
-            
-            if(cmd === 'help') {
-                print("Available commands: status, clear, ddos, audit, insta", 'info');
-            } else if(cmd === 'status') {
-                print("All systems operational. Encryption level: High.", 'success');
-            } else if(cmd === 'insta') {
-                print("Redirecting to @h9exe...", 'accent');
+            const input = this.value.toLowerCase().trim();
+            print(`guest@h9exe:~$ ${input}`, var(--primary));
+
+            if (input === 'help') {
+                print("Available commands: ddos, info, clear, insta", "#fff");
+            } 
+            else if (input === 'ddos') {
+                print("!!! WARNING: INITIATING DDOS PROTOCOL !!!", var(--accent));
+                print("Targeting: discord.gg/lrnn", var(--accent));
+                
+                // Visual Loading Bar
+                const loader = document.createElement('div');
+                loader.className = 'loading-bar';
+                output.appendChild(loader);
+                
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 5;
+                    loader.style.width = width + "%";
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        print("HANDSHAKE SUCCESSFUL. REDIRECTING...", var(--primary));
+                        setTimeout(() => {
+                            window.location.href = "https://discord.gg/lrnn";
+                        }, 1000);
+                    }
+                }, 50);
+            } 
+            else if (input === 'info') {
+                print("System: h9exe Custom OS", var(--blue));
+                print("Status: Operationally stealthy", var(--blue));
+            } 
+            else if (input === 'insta') {
+                print("Opening Instagram @h9exe...", var(--blue));
                 window.open('https://instagram.com/h9exe', '_blank');
-            } else if(cmd === 'clear') {
-                output.innerHTML = '';
-            } else {
-                print(`Command '${cmd}' not found. Type 'help' for list.`, 'error');
             }
-            input.value = '';
+            else if (input === 'clear') {
+                output.innerHTML = '';
+            }
+            else {
+                print("Unknown command. Type 'help'.", "#666");
+            }
+
+            this.value = '';
         }
     });
 
-    // Random Encryption Key simulation
-    setInterval(() => {
-        const chars = "ABCDEF0123456789";
-        let key = "AES-256-GCM: ";
-        for(let i=0; i<32; i++) key += chars.charAt(Math.floor(Math.random() * chars.length));
-        document.getElementById('encryption-key').textContent = key;
-    }, 100);
-
+    // Handle focus for mobile
+    document.addEventListener('click', () => cmdInput.focus());
 </script>
 
 </body>
