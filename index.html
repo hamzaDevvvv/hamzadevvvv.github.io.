@@ -3,283 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>root@h9exe:pts/0-></title>
+    <title>h9exe | Terminal</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00ff9d; 
-            --accent: #0084ff;  
-            --danger: #ff3e3e;  
             --bg: #050506;
-            --panel-bg: rgba(10, 10, 15, 0.95);
-            --border: rgba(0, 255, 157, 0.15);
+            --panel-bg: rgba(15, 15, 20, 0.9);
+            --border: rgba(0, 255, 157, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg);
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 255, 157, 0.03) 0%, transparent 80%),
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
             color: #e0e0e0;
             font-family: 'JetBrains Mono', monospace;
             min-height: 100vh;
+            overflow-y: auto; /* يسمح بالسكرول */
+            position: relative;
+        }
+
+        /* تحريك الخلفية */
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            animation: moveGrid 20s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            from { background-position: 0 0; }
+            to { background-position: 0 400px; }
+        }
+
+        /* شاشة الدخول */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            z-index: 1000;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            border: 4px solid var(--primary);
         }
 
-        /* Scanline Animation */
-        .scanline {
-            width: 100%; height: 100px;
-            background: linear-gradient(0deg, rgba(0, 255, 157, 0) 0%, rgba(0, 255, 157, 0.05) 50%, rgba(0, 255, 157, 0) 100%);
-            opacity: 0.1; position: absolute; bottom: 100%;
-            animation: scanline 8s linear infinite; pointer-events: none;
+        .login-box { text-align: center; }
+        .login-box h2 { font-family: 'Orbitron'; color: var(--primary); margin-bottom: 20px; letter-spacing: 5px; }
+        .login-box input {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px;
+            text-align: center;
+            outline: none;
+            font-family: inherit;
         }
-        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100px; } }
 
+        /* الهيكل الأساسي */
         .main-frame {
-            width: 98vw; height: 96vh; max-width: 1500px;
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            grid-template-rows: auto 1fr auto;
-            gap: 12px; padding: 12px;
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            position: relative; z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         header {
-            grid-column: 1 / -1;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
+            margin-bottom: 10px;
         }
 
-        .logo-area .title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2rem; color: var(--primary);
-            text-shadow: 0 0 15px rgba(0, 255, 157, 0.6);
-            letter-spacing: 4px;
+        .title { font-family: 'Orbitron'; font-size: 2rem; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+
+        /* الألواح */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 15px;
         }
 
         .panel {
-            background: rgba(0, 0, 0, 0.6);
+            background: var(--panel-bg);
             border: 1px solid var(--border);
-            padding: 15px; display: flex; flex-direction: column;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
         }
+
+        .panel::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--primary); animation: scanLine 3s linear infinite;
+        }
+
+        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
 
         .panel-header {
-            font-size: 11px; color: var(--accent);
-            margin-bottom: 12px; font-weight: bold;
-            display: flex; justify-content: space-between;
-            border-bottom: 1px solid rgba(0, 132, 255, 0.3);
-            padding-bottom: 5px; text-transform: uppercase;
+            font-size: 11px; color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px; padding-bottom: 5px;
+            font-weight: bold;
         }
 
-        .stat-row { margin-bottom: 12px; }
-        .label { font-size: 10px; color: #777; display: block; margin-bottom: 4px; }
-        .progress-bg { height: 6px; background: #111; border: 1px solid #222; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s; box-shadow: 0 0 10px var(--primary); }
+        /* التيرمنال */
+        .terminal-container { height: 500px; display: flex; flex-direction: column; }
+        #output { flex-grow: 1; overflow-y: auto; font-size: 13px; margin-bottom: 10px; scroll-behavior: smooth; }
+        .input-area { display: flex; gap: 5px; align-items: center; }
+        #commandInput { background: transparent; border: none; color: #fff; outline: none; flex-grow: 1; font-family: inherit; }
 
-        .terminal-box { grid-column: 2; border-color: var(--accent); }
-        #output {
-            flex-grow: 1; font-size: 13px; overflow-y: auto;
-            color: #ddd; line-height: 1.5; padding-right: 5px;
-        }
-        .input-line {
-            display: flex; gap: 10px; background: rgba(0, 132, 255, 0.1);
-            padding: 10px; border-radius: 2px; border: 1px solid rgba(0, 132, 255, 0.2);
-        }
-        input { background: transparent; border: none; color: white; outline: none; flex-grow: 1; font-family: inherit; font-size: 14px; }
+        /* أشياء تتحرك */
+        .progress-bar { height: 4px; background: #222; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
 
-        .node-item { display: flex; justify-content: space-between; font-size: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .online { color: var(--primary); }
-        .blink { animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .node-item { display: flex; justify-content: space-between; font-size: 10px; padding: 5px 0; border-bottom: 1px solid rgba(0,255,157,0.1); }
 
-        footer {
-            grid-column: 1 / -1; display: flex; justify-content: space-between;
-            font-size: 11px; color: #555; padding-top: 10px;
-        }
-        .insta-link { color: var(--primary); text-decoration: none; border: 1px solid var(--primary); padding: 2px 8px; border-radius: 3px; transition: 0.3s; }
-        .insta-link:hover { background: var(--primary); color: black; }
-
-        @media (max-width: 1024px) {
-            .main-frame { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
+        /* للموبايل */
+        @media (max-width: 900px) {
+            .layout-grid { grid-template-columns: 1fr; }
             .hide-mobile { display: none; }
-            .terminal-box { height: 500px; }
+            .terminal-container { height: 400px; }
         }
+
+        footer { text-align: center; padding: 20px; font-size: 10px; color: #555; }
+        .insta-tag { color: var(--primary); text-decoration: none; }
     </style>
 </head>
 <body>
 
-<div class="scanline"></div>
+<div class="grid-bg"></div>
+
+<div id="login-overlay">
+    <div class="login-box">
+        <h2>ACCESS REQUIRED</h2>
+        <input type="text" id="usernameInput" placeholder="ENTER USERNAME..." autocomplete="off">
+        <p style="font-size: 9px; color: #555; margin-top: 10px;">AUTHORIZED PERSONNEL ONLY</p>
+    </div>
+</div>
 
 <div class="main-frame">
     <header>
-        <div class="logo-area">
-            <div class="title">H9EXE<span class="blink">_</span></div>
-            <div style="font-size: 10px; color: #666; letter-spacing: 2px;">VIRTUAL_ASSET_EXPLOITER_v4.2</div>
-        </div>
+        <div class="title">h9exe</div>
         <div style="text-align: right">
-            <div id="clock" style="font-size: 18px; color: white; font-weight: bold;">00:00:00</div>
-            <div id="connection-status" style="font-size: 9px; color: var(--primary);">PROXY_LINK: STABLE</div>
+            <div id="clock">00:00:00</div>
+            <div style="font-size: 9px; color: var(--primary);">SYSTEM: ONLINE</div>
         </div>
     </header>
 
-    <aside class="panel">
-        <div class="panel-header"><span>Resource Monitor</span></div>
-        <div class="stat-row">
-            <span class="label">NEURAL_PROCESSOR</span>
-            <div class="progress-bg"><div class="progress-fill" id="cpu-bar" style="width: 45%"></div></div>
-        </div>
-        <div class="stat-row">
-            <span class="label">ENCRYPTED_RAM</span>
-            <div class="progress-bg"><div class="progress-fill" id="ram-bar" style="width: 32%"></div></div>
-        </div>
-        
-        <div class="panel-header" style="margin-top: 20px;"><span>Identity Info</span></div>
-        <div style="font-size: 11px; color: #aaa;">
-            <p>USER: <span style="color: var(--primary);">h9exe</span></p>
-            <p>RANK: <span style="color: var(--accent);">Elite Architect</span></p>
-            <p>PRIVILEGE: <span style="color: var(--danger);">ROOT_ACCESS</span></p>
-        </div>
+    <div class="layout-grid">
+        <aside class="panel hide-mobile">
+            <div class="panel-header">CORE STATUS</div>
+            <div class="stat-row">
+                <span style="font-size: 10px;">CPU LOAD</span>
+                <div class="progress-bar"><div id="cpu-bar" class="progress-fill"></div></div>
+            </div>
+            <div class="stat-row" style="margin-top:10px;">
+                <span style="font-size: 10px;">MEMORY</span>
+                <div class="progress-bar"><div id="ram-bar" class="progress-fill"></div></div>
+            </div>
+            <div class="panel-header" style="margin-top: 20px;">OPERATOR</div>
+            <div id="op-name" style="color: var(--primary); font-size: 14px;">Guest</div>
+        </aside>
 
-        <div class="panel-header" style="margin-top: 20px;"><span>Session Key</span></div>
-        <div id="enc-key" style="font-size: 10px; word-break: break-all; color: #444; font-family: monospace;"></div>
-    </aside>
+        <main class="panel terminal-container">
+            <div class="panel-header">TERMINAL v2.0 - SECURE_SESSION</div>
+            <div id="output"></div>
+            <div class="input-area">
+                <span id="prompt" style="color: var(--primary); white-space: nowrap;">guest@h9exe:~$</span>
+                <input type="text" id="commandInput" autofocus autocomplete="off">
+            </div>
+        </main>
 
-    <section class="panel terminal-box">
-        <div class="panel-header"><span>Terminal Interface</span><span>Channel: #h9-core</span></div>
-        <div id="output"></div>
-        <div class="input-line">
-            <span style="color: var(--primary)">root@h9exe:~#</span>
-            <input type="text" id="commandInput" placeholder="Type 'help' for commands..." autocomplete="off" autofocus>
-        </div>
-    </section>
-
-    <aside class="panel hide-mobile">
-        <div class="panel-header"><span>Network Activity</span></div>
-        <div id="threat-feed"></div>
-
-        <div class="panel-header" style="margin-top: 20px;"><span>Social Nodes</span></div>
-        <div class="node-item">
-            <span>Instagram</span>
-            <a href="https://instagram.com/h9exe" target="_blank" style="color: var(--primary); text-decoration: none;">@h9exe</a>
-        </div>
-        <div class="node-item"><span>Discord_Srv</span><span class="online">CONNECTED</span></div>
-        <div class="node-item"><span>Payload_Store</span><span style="color:var(--accent)">READY</span></div>
-    </aside>
+        <aside class="panel hide-mobile">
+            <div class="panel-header">THREAT DETECTION</div>
+            <div id="threats"></div>
+            <div class="panel-header" style="margin-top: 20px;">NETWORK NODES</div>
+            <div class="node-item"><span>Riyadh_Node</span><span style="color:var(--primary)">ACTIVE</span></div>
+            <div class="node-item"><span>Proxy_Chain</span><span style="color:var(--primary)">ON</span></div>
+        </aside>
+    </div>
 
     <footer>
-        <div>SATELLITE_IP: 192.168.x.x (MASQUERADED)</div>
-        <div>
-            COMMANDER: <a href="https://instagram.com/h9exe" target="_blank" class="insta-link">ACCESS @H9EXE</a>
-        </div>
+        <p>H9EXE DIGITAL ARCHITECTURE &copy; 2024 | <a href="https://instagram.com/h9exe" class="insta-tag">@h9exe</a></p>
     </footer>
 </div>
 
 <script>
+    let currentUser = "guest";
     const output = document.getElementById('output');
     const input = document.getElementById('commandInput');
+    const userIn = document.getElementById('usernameInput');
 
-    // Stats & Clock
-    setInterval(() => {
-        document.getElementById('clock').textContent = new Date().toLocaleTimeString();
-        document.getElementById('cpu-bar').style.width = Math.floor(Math.random() * 40 + 30) + '%';
-        document.getElementById('ram-bar').style.width = Math.floor(Math.random() * 20 + 50) + '%';
-    }, 1000);
+    // تسجيل الدخول
+    userIn.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && userIn.value.trim() !== "") {
+            currentUser = userIn.value.trim();
+            document.getElementById('op-name').textContent = currentUser;
+            document.getElementById('prompt').textContent = `${currentUser}@h9exe:~$`;
+            document.getElementById('login-overlay').style.display = 'none';
+            bootSequence();
+        }
+    });
 
-    // Encryption Key
-    setInterval(() => {
-        let key = "X-";
-        const chars = "ABCDEF0123456789";
-        for(let i=0; i<32; i++) key += chars[Math.floor(Math.random()*16)];
-        document.getElementById('enc-key').textContent = key;
-    }, 200);
-
-    function print(text, type = 'info', delay = 0) {
-        setTimeout(() => {
-            const div = document.createElement('div');
-            const colors = { info: '#ccc', success: '#00ff9d', danger: '#ff3e3e', accent: '#0084ff', warning: '#ffcc00' };
-            div.style.color = colors[type] || colors.info;
-            div.style.marginBottom = '4px';
-            div.style.whiteSpace = 'pre-wrap';
-            
-            const timestamp = `<span style="color: #444; font-size: 10px;">[${new Date().toLocaleTimeString([], {hour12:false})}]</span> `;
-            div.innerHTML = timestamp + text;
-            output.appendChild(div);
-            output.scrollTop = output.scrollHeight;
-        }, delay);
+    function print(text, color = '#ccc') {
+        const div = document.createElement('div');
+        div.style.color = color;
+        div.style.marginBottom = '5px';
+        div.innerHTML = `<span style="color:#444">[${new Date().toLocaleTimeString()}]</span> ${text}`;
+        output.appendChild(div);
+        output.scrollTop = output.scrollHeight;
     }
 
-    const commands = {
-        'help': () => print("Available Commands: <br> - <b>status</b>: System health<br> - <b>whoami</b>: Operator details<br> - <b>neofetch</b>: System summary<br> - <b>insta</b>: Social link<br> - <b>ddos</b>: Start protocol<br> - <b>clear</b>: Wipe terminal", 'accent'),
-        'status': () => print("CORE: NOMINAL<br>ENCRYPTION: AES-256-GCM<br>UPLINK: ACTIVE via @H9EXE", 'success'),
-        'whoami': () => print("ID: H9EXE<br>ROLE: System Architect & Security Researcher<br>STATUS: Unknown Entity<br>LOCATION: Classified", 'warning'),
-        'insta': () => {
-            print("Redirecting to @h9exe Instagram...", 'success');
-            window.open('https://instagram.com/h9exe', '_blank');
-        },
-        'neofetch': () => {
-            print(`
-<span style="color:var(--primary)">       .---.       </span>  <b>OS:</b> H9-Linux v4.2
-<span style="color:var(--primary)">      /     \\      </span>  <b>Kernel:</b> 6.1.0-h9-exe
-<span style="color:var(--primary)">      | () () |     </span>  <b>Uptime:</b> 1337 hours
-<span style="color:var(--primary)">       \\  ^  /      </span>  <b>Shell:</b> h9sh 1.0
-<span style="color:var(--primary)">        |||||       </span>  <b>Operator:</b> @h9exe
-            `, 'info');
-        },
-        'ddos': () => {
-            print("INITIALIZING ATTACK VECTOR...", 'danger');
-            print("TARGETING: DISCORD_GATEWAY", 'danger', 500);
-            setTimeout(() => {
-                print("BYPASSING FIREWALL... [DONE]", 'success');
-                print("HANDSHAKE WITH NODE @H9EXE... [OK]", 'success');
-                setTimeout(() => window.location.href = "https://discord.gg/lrnn", 1000);
-            }, 1500);
-        },
-        'clear': () => output.innerHTML = ''
+    function bootSequence() {
+        print("Initializing Kernel...", "#00ff9d");
+        setTimeout(() => print("Establishing connection to h9exe nodes...", "#00ff9d"), 500);
+        setTimeout(() => print(`Welcome back, Agent ${currentUser}. System is ready.`, "#fff"), 1200);
+    }
+
+    // الأوامر
+    const cmdList = {
+        'help': () => print("Commands: ls, cat, status, socials, hack, clear, whoami"),
+        'ls': () => print("bio.txt&nbsp;&nbsp;&nbsp;projects/&nbsp;&nbsp;&nbsp;social_links.sh&nbsp;&nbsp;&nbsp;secret.key"),
+        'whoami': () => print(`User: ${currentUser}<br>Role: Security Specialist<br>Host: h9exe_Mainframe`),
+        'status': () => print("All systems nominal. Encryption active.", "#00ff9d"),
+        'socials': () => print("Instagram: <a href='https://instagram.com/h9exe' target='_blank' style='color:#00ff9d'>@h9exe</a>", "#00ff9d"),
+        'cat bio.txt': () => print("h9exe: Virtual architect specializing in aesthetic code and secure interfaces."),
+        'clear': () => output.innerHTML = '',
+        'hack': () => {
+            print("INITIALIZING BRUTE FORCE...", "red");
+            let i = 0;
+            const interval = setInterval(() => {
+                print(`Bypassing Layer ${i}%...`, "red");
+                i += 20;
+                if (i > 100) {
+                    clearInterval(interval);
+                    print("ACCESS GRANTED. (Just kidding, it's a demo!)", "#00ff9d");
+                }
+            }, 300);
+        }
     };
 
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const val = input.value.toLowerCase().trim();
-            print(`guest@h9exe:~$ ${val}`, 'success');
-            if (commands[val]) commands[val]();
-            else if (val !== "") print(`Command not found: ${val}`, 'danger');
+            const cmd = input.value.toLowerCase().trim();
+            print(`${currentUser}@h9exe:~$ ${cmd}`, "#00ff9d");
+            if (cmdList[cmd]) cmdList[cmd]();
+            else if (cmd !== "") print(`Unknown command: ${cmd}. Type 'help' for info.`, "orange");
             input.value = '';
         }
     });
 
-    // Boot ASCII
-    const logo = `
-   __ __  ___  _______  _____ 
-  / // / / _ \\/ __/ _ \\/ __/ /
- / _  / /\_, / _//  ___/ _/ /_/ 
-/_//_/ /_/_/___/_/|_/___/ (_) 
-    `;
-    print(logo, 'primary');
-    print("Welcome to H9EXE Neural Interface.", 'accent', 500);
-    print("Type 'help' to start session.", 'info', 1000);
-
-    // Threat Feed
-    const alerts = ["Unauthorized Access Blocked", "New Node Connected: Tokyo", "Encrypted Packet Received", "SQL Injection Attempt Deflected", "Handshake: @h9exe Proxy"];
+    // تحركات الأشرطة والساعة
     setInterval(() => {
-        const feed = document.getElementById('threat-feed');
-        const div = document.createElement('div');
-        div.className = 'node-item';
-        div.innerHTML = `<span>${alerts[Math.floor(Math.random()*alerts.length)]}</span><span style="color:#666">SYS_LOG</span>`;
-        feed.prepend(div);
-        if(feed.children.length > 5) feed.lastChild.remove();
-    }, 4000);
-</script>
+        document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+        document.getElementById('cpu-bar').style.width = Math.floor(Math.random() * 60 + 20) + '%';
+        document.getElementById('ram-bar').style.width = Math.floor(Math.random() * 40 + 10) + '%';
+    }, 1000);
 
+    // تهديدات وهمية تتحرك
+    const tTexts = ["Port scan blocked", "SSH attempt from 182.xx", "Packet filtered", "Node sync OK"];
+    setInterval(() => {
+        const tDiv = document.getElementById('threats');
+        const d = document.createElement('div');
+        d.className = 'node-item';
+        d.innerHTML = `<span>${tTexts[Math.floor(Math.random()*tTexts.length)]}</span><span style="color:#444">LOG</span>`;
+        tDiv.prepend(d);
+        if(tDiv.children.length > 5) tDiv.lastChild.remove();
+    }, 3000);
+
+</script>
 </body>
 </html>
