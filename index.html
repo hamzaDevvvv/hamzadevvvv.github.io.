@@ -28,7 +28,6 @@
             position: relative;
         }
 
-        /* خلفية متحركة متطورة */
         .grid-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -58,7 +57,6 @@
             50% { opacity: 1; }
         }
 
-        /* جزيئات متحركة */
         .particles {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -84,7 +82,6 @@
             100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
         }
 
-        /* شاشة الدخول المحسّنة */
         #login-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -180,7 +177,6 @@
             animation: fadeIn 0.5s forwards;
         }
 
-        /* الهيكل الأساسي المحسّن */
         .main-frame {
             width: 100%;
             max-width: 1400px;
@@ -259,7 +255,6 @@
             margin-top: 3px;
         }
 
-        /* شبكة الألواح المحسّنة */
         .layout-grid {
             display: grid;
             grid-template-columns: 280px 1fr 280px;
@@ -345,7 +340,6 @@
             50% { opacity: 0.3; }
         }
 
-        /* لوحة الحالة المحسّنة */
         .stat-row {
             margin-bottom: 15px;
         }
@@ -429,7 +423,6 @@
             letter-spacing: 1px;
         }
 
-        /* التيرمنال المحسّن */
         .terminal-container { 
             height: 600px; 
             display: flex; 
@@ -536,7 +529,6 @@
             50% { opacity: 0; }
         }
 
-        /* لوحة التهديدات المحسّنة */
         .threat-item {
             display: flex;
             justify-content: space-between;
@@ -576,7 +568,6 @@
             color: var(--danger);
         }
 
-        /* عقد الشبكة المحسّنة */
         .node-item { 
             display: flex; 
             justify-content: space-between;
@@ -619,7 +610,6 @@
             margin-left: 8px;
         }
 
-        /* لوحة الأنشطة الجديدة */
         .activity-log {
             max-height: 200px;
             overflow-y: auto;
@@ -639,7 +629,6 @@
             font-size: 0.6rem;
         }
 
-        /* قائمة الأوامر المحسّنة */
         .command-help {
             display: grid;
             grid-template-columns: auto 1fr;
@@ -659,7 +648,6 @@
             font-size: 0.8rem;
         }
 
-        /* ASCII Art */
         .ascii-art {
             color: var(--primary);
             font-size: 0.7rem;
@@ -688,7 +676,6 @@
             opacity: 1;
         }
 
-        /* نمط المحمول المحسّن */
         @media (max-width: 1024px) {
             .layout-grid { 
                 grid-template-columns: 1fr;
@@ -707,7 +694,6 @@
             }
         }
 
-        /* الفوتر المحسّن */
         footer { 
             text-align: center; 
             padding: 30px; 
@@ -748,7 +734,6 @@
             color: var(--primary);
         }
 
-        /* ماتريكس المطر (تأثير إضافي) */
         .matrix-rain {
             position: fixed;
             top: 0;
@@ -789,7 +774,6 @@
     </header>
 
     <div class="layout-grid">
-        <!-- اللوحة اليسرى -->
         <aside class="panel hide-mobile">
             <div class="panel-header">
                 <span>CORE STATUS</span>
@@ -958,7 +942,6 @@
     const userIn = document.getElementById('usernameInput');
     const activityLog = document.getElementById('activityLog');
 
-    // إنشاء الجزيئات المتحركة
     function createParticles() {
         const container = document.getElementById('particles');
         for (let i = 0; i < 20; i++) {
@@ -971,7 +954,6 @@
         }
     }
 
-    // تأثير ماتريكس
     function initMatrix() {
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
@@ -1002,14 +984,12 @@
         setInterval(drawMatrix, 33);
     }
 
-    // تسجيل الدخول
     userIn.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && userIn.value.trim() !== "") {
             currentUser = userIn.value.trim().toUpperCase();
             document.getElementById('op-name').textContent = currentUser;
             document.getElementById('prompt').textContent = `${currentUser.toLowerCase()}@h9exe:~$`;
             
-            // توليد Session ID
             const sessionId = Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + 
                              Math.random().toString(36).substr(2, 4).toUpperCase();
             document.getElementById('sessionId').textContent = sessionId;
@@ -1062,7 +1042,6 @@
         }
     }
 
-    // الأوامر المحسّنة
     const cmdList = {
         'help': () => {
             print('<br><div class="command-help">' +
@@ -1083,12 +1062,13 @@
         
         'ls': () => {
             print('<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0;">' +
-                '<span style="color: var(--secondary)">📄 bio.txt</span>' +
-                '<span style="color: var(--primary)">📁 projects/</span>' +
-                '<span style="color: var(--secondary)">📄 readme.md</span>' +
-                '<span style="color: var(--warning)">🔒 secret.key</span>' +
-                '<span style="color: var(--primary)">📁 archives/</span>' +
-                '<span style="color: var(--secondary)">📄 config.json</span>' +
+                '<span style="color: var(--secondary)"> bio.txt</span>' +
+                '<span style="color: var(--primary)"> projects/</span>' +
+                '<span style="color: var(--secondary)"> readme.md</span>' +
+                '<span style="color: var(--warning)"> secret.key</span>' +
+                '<span style="color: var(--primary)"> archives/</span>' +
+                '<span style="color: var(--secondary)"> config.json</span>' +
+                  '<span style="color: var(--secondary)"> LRN.dat</span>' +
                 '</div>');
             addActivity('Directory listing executed');
         },
@@ -1273,7 +1253,6 @@
         }
     });
 
-    // اختصارات لوحة المفاتيح
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'l') {
             e.preventDefault();
@@ -1287,41 +1266,34 @@
         }
     });
 
-    // تحديث الساعة والإحصائيات
     setInterval(() => {
         // الساعة
         document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
         
-        // Uptime
         const uptime = Math.floor((Date.now() - sessionStartTime) / 1000);
         const hours = Math.floor(uptime / 3600);
         const mins = Math.floor((uptime % 3600) / 60);
         const secs = uptime % 60;
         document.getElementById('uptime').textContent = `${hours}h ${mins}m ${secs}s`;
         
-        // CPU
         const cpu = Math.floor(Math.random() * 40 + 20);
         document.getElementById('cpu-bar').style.width = cpu + '%';
         document.getElementById('cpu-val').textContent = cpu + '%';
         
-        // RAM
         const ram = Math.floor(Math.random() * 30 + 40);
         document.getElementById('ram-bar').style.width = ram + '%';
         document.getElementById('ram-val').textContent = ram + '%';
         
-        // Disk
         const disk = Math.floor(Math.random() * 20 + 10);
         document.getElementById('disk-bar').style.width = disk + '%';
         document.getElementById('disk-val').textContent = disk + '%';
         
-        // Network
         const net = (Math.random() * 5 + 1).toFixed(1);
         const netPercent = Math.min(parseFloat(net) * 10, 100);
         document.getElementById('net-bar').style.width = netPercent + '%';
         document.getElementById('net-val').textContent = net + ' MB/s';
     }, 1000);
 
-    // التهديدات المتحركة
     const threatTypes = [
         { text: 'Port scan detected', status: 'BLOCKED', type: 'blocked' },
         { text: 'SSH brute force attempt', status: 'BLOCKED', type: 'blocked' },
@@ -1345,7 +1317,6 @@
         }
     }, 3500);
 
-    // تأثير الماوس على الألواح
     document.querySelectorAll('.panel').forEach(panel => {
         panel.addEventListener('mousemove', (e) => {
             const rect = panel.getBoundingClientRect();
@@ -1356,18 +1327,16 @@
         });
     });
 
-    // تهيئة الموقع
     createParticles();
     initMatrix();
     
-    // رسالة في الكونسول
     console.log('%c █████╗ ██████╗ ███████╗██╗  ██╗███████╗', 'color: #00ff9d; font-weight: bold;');
     console.log('%c██╔══██╗╚════██╗██╔════╝╚██╗██╔╝██╔════╝', 'color: #00ff9d; font-weight: bold;');
     console.log('%c███████║ █████╔╝█████╗   ╚███╔╝ █████╗  ', 'color: #00ff9d; font-weight: bold;');
     console.log('%c██╔══██║ ╚═══██╗██╔══╝   ██╔██╗ ██╔══╝  ', 'color: #00ff9d; font-weight: bold;');
     console.log('%c██║  ██║██████╔╝███████╗██╔╝ ██╗███████╗', 'color: #00ff9d; font-weight: bold;');
     console.log('%c╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝', 'color: #00ff9d; font-weight: bold;');
-    console.log('%cWelcome to h9exe Terminal. All actions are logged.', 'color: #00d4ff;');
+    console.log('%cWelcome to h9exe Terminal All actions are logged.', 'color: #00d4ff;');
 
 </script>
 </body>
