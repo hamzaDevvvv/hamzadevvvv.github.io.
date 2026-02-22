@@ -1,39 +1,73 @@
-<h1 class="glitch text-6xl md:text-8xl font-bold tracking-tighter mb-4">
-            h9<span class="text-blue-600">exe</span>
-        </h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>h9exe | Coming Soon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&display=swap');
         
-        <div class="flex items-center justify-center gap-2 mb-8">
-            <span class="relative flex h-3 w-3">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-            </span>
-            <p class="text-gray-400 text-lg md:text-xl tracking-widest uppercase">
-                Service is coming soon
-            </p>
-        </div>
+        body {
+            background-color: #050505;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        <p class="max-w-md mx-auto text-gray-500 mb-10 text-sm md:text-base leading-relaxed">
-            نعمل حالياً على تطوير تجربة فريدة تليق بكم. ترقبوا الإطلاق الرسمي قريباً.
+        /* تأثير التوهج في الخلفية */
+        .bg-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 150, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            z-index: 1;
+            animation: move 10s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-50%, -50%); }
+            to { transform: translate(50%, 50%); }
+        }
+
+        .main-text {
+            position: relative;
+            z-index: 10;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 20px rgba(0,150,255,0.2);
+            text-align: center;
+        }
+
+        .highlight {
+            color: #00d4ff;
+            text-shadow: 0 0 15px #00d4ff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; text-shadow: 0 0 30px #00d4ff; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow" style="top: 20%; left: 30%;"></div>
+    <div class="bg-glow" style="bottom: 10%; right: 20%; background: radial-gradient(circle, rgba(138, 43, 226, 0.1) 0%, rgba(0, 0, 0, 0) 70%);"></div>
+
+    <div class="main-text">
+        <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-widest">
+            h9<span class="highlight">exe</span>
+        </h1>
+        <p class="text-gray-400 text-sm md:text-lg tracking-[0.5em] uppercase opacity-80">
+            Service soon...
         </p>
-
-        <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
-            <input type="email" placeholder="بريدك الإلكتروني.." 
-                class="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-lg focus:outline-none focus:border-blue-600 w-64 transition-all">
-            
-            <button class="glow-button bg-white text-black font-bold px-8 py-3 rounded-lg hover:bg-gray-200 transition-all">
-                أبلغني عند الإطلاق
-            </button>
-        </div>
-
-        <div class="mt-16 flex justify-center gap-6 text-gray-600">
-            <a href="#" class="hover:text-white transition-colors">Discord</a>
-            <a href="#" class="hover:text-white transition-colors">Twitter (X)</a>
-            <a href="#" class="hover:text-white transition-colors">Instagram</a>
-        </div>
     </div>
 
-    <script>
-        // يمكن إضافة تأثير جزيئات بسيط هنا لزيادة الحيوية
-    </script>
 </body>
 </html>
